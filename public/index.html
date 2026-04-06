@@ -1,0 +1,1642 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS Master AI</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:        #0c0e14;
+  --surface:   #10121a;
+  --card:      #151820;
+  --card2:     #1b1f2c;
+  --border:    #1e2230;
+  --border2:   #262a3a;
+  --text:      #d8dce8;
+  --text-dim:  #8890a8;
+  --muted:     #4e5468;
+  --accent:    #5c7cfa;
+  --accent2:   #7c9aff;
+  --green:     #2dd4a0;
+  --green-dim: rgba(45,212,160,0.12);
+  --yellow:    #f5c842;
+  --yellow-dim:rgba(245,200,66,0.12);
+  --red:       #f56565;
+  --red-dim:   rgba(245,101,101,0.12);
+  --blue:      #5b9cf6;
+  --blue-dim:  rgba(91,156,246,0.1);
+  --orange:    #fb923c;
+  --glow:      rgba(92,124,250,0.18);
+  --study-col: #1a7a5e;
+  --study-glow:rgba(45,212,160,0.15);
+  --sidebar-w: 268px;
+  --header-h:  54px;
+}
+
+html, body { height: 100%; font-family: 'IBM Plex Sans', sans-serif; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: linear-gradient(rgba(92,124,250,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(92,124,250,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 0%, rgba(92,124,250,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 90% 100%, rgba(45,212,160,0.05) 0%, transparent 60%);
+}
+
+header {
+  position: relative; z-index: 20;
+  height: var(--header-h);
+  padding: 0 16px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(12,14,20,0.97);
+  backdrop-filter: blur(16px);
+  flex-shrink: 0;
+}
+
+.logo-wrap { display: flex; align-items: center; gap: 9px; }
+.logo-mark {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), #8b6ff5);
+  border-radius: 8px;
+  display: grid; place-items: center;
+  font-size: 15px; flex-shrink: 0;
+  box-shadow: 0 0 20px var(--glow);
+}
+.logo-text  { font-size: 14px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.logo-sub   { font-size: 14px; color: var(--muted); margin-top: 1px; font-family: 'IBM Plex Mono', monospace; }
+.header-sep { flex: 1; }
+
+.status-pill {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 20px;
+  background: var(--card); border: 1px solid var(--border2);
+  font-size: 14px; color: var(--text-dim);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); transition: all 0.3s; }
+.status-dot.ok  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.status-dot.err { background: var(--red); }
+.status-dot.warn { background: var(--yellow); }
+
+.hbtn {
+  background: var(--card); border: 1px solid var(--border2);
+  color: var(--text-dim); padding: 5px 11px; border-radius: 6px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.14s; display: flex; align-items: center; gap: 5px;
+  white-space: nowrap; letter-spacing: 0.01em;
+}
+.hbtn:hover { border-color: var(--accent); color: var(--accent2); background: rgba(92,124,250,0.06); }
+.hbtn.primary {
+  background: linear-gradient(135deg, #1a6b4e, var(--green));
+  border-color: transparent; color: #0a1f17; font-weight: 700;
+}
+.hbtn.primary:hover { filter: brightness(1.1); color: #000; }
+
+.app {
+  position: relative; z-index: 1;
+  display: flex;
+  min-height: calc(100vh - var(--header-h));
+  overflow: visible;
+}
+
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  transition: width 0.22s ease, min-width 0.22s ease;
+  flex-shrink: 0;
+  position: relative;
+}
+.sidebar.collapsed { width: 0; min-width: 0; }
+
+.sidebar-inner {
+  width: var(--sidebar-w);
+  height: 100%;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.stats-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 5px; padding: 10px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.stat-box {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 7px; padding: 7px 5px; text-align: center;
+}
+.stat-num { font-size: 14px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
+.stat-lbl { font-size: 14px; color: var(--muted); margin-top: 1px; text-transform: uppercase; letter-spacing: 0.07em; }
+
+.level-section { padding: 9px 10px 7px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.sec-label {
+  font-size: 14px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+}
+.level-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.level-btn {
+  padding: 5px 3px; border-radius: 6px;
+  border: 1px solid var(--border2); background: var(--card);
+  color: var(--muted); font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: all 0.12s; text-align: center;
+}
+.level-btn:hover { border-color: var(--accent); color: var(--text); }
+.level-btn[data-nivel="auto"] { grid-column: 1/-1; }
+.level-btn.active { color: #07100e; font-weight: 700; }
+.level-btn[data-nivel="auto"].active    { background: var(--accent);  border-color: var(--accent); color: white; }
+.level-btn[data-nivel="facil"].active   { background: var(--green);   border-color: var(--green); }
+.level-btn[data-nivel="medio"].active   { background: var(--yellow);  border-color: var(--yellow); }
+.level-btn[data-nivel="dificil"].active { background: var(--red);     border-color: var(--red); }
+
+.topics-section { flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 9px 10px 6px; }
+.topic-search {
+  width: 100%; padding: 6px 10px;
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: 6px; color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px;
+  outline: none; margin-bottom: 5px; flex-shrink: 0;
+}
+.topic-search:focus { border-color: var(--accent); }
+.topic-search::placeholder { color: var(--muted); }
+
+.topics-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
+.topics-scroll::-webkit-scrollbar { width: 3px; }
+.topics-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.grp-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 6px 2px; cursor: pointer; border-radius: 4px;
+  transition: background 0.1s; user-select: none;
+}
+.grp-hdr:hover { background: rgba(255,255,255,0.02); }
+.grp-lbl { font-size: 14px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+.grp-arrow { font-size: 14px; color: var(--muted); transition: transform 0.2s; }
+.grp-arrow.open { transform: rotate(90deg); }
+.grp-items { overflow: hidden; max-height: 2000px; transition: max-height 0.25s ease; }
+.grp-items.closed { max-height: 0; }
+
+.topic-item {
+  padding: 5px 7px; border-radius: 5px; cursor: pointer;
+  transition: all 0.11s; display: flex; align-items: center; gap: 6px;
+  font-size: 14px; color: var(--text-dim); border: 1px solid transparent;
+  margin-bottom: 1px;
+}
+.topic-item:hover { background: var(--card); color: var(--text); }
+.topic-item.active {
+  background: rgba(92,124,250,0.1); border-color: rgba(92,124,250,0.25);
+  color: var(--accent2);
+}
+
+.sidebar-toggle {
+  position: absolute; top: 50%; right: -12px; transform: translateY(-50%);
+  width: 22px; height: 22px; background: var(--card2);
+  border: 1px solid var(--border2); border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer; z-index: 20;
+  font-size: 14px; color: var(--muted); transition: all 0.14s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.sidebar-toggle:hover { border-color: var(--accent); color: var(--accent2); }
+
+.main {
+  flex: 1; display: flex; flex-direction: column;
+  overflow: visible; min-width: 0;
+}
+
+.topbar {
+  padding: 8px 16px; display: flex; align-items: center; gap: 7px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+  background: rgba(12,14,20,0.6);
+}
+.badge {
+  padding: 3px 9px; border-radius: 20px; font-size: 14px; font-weight: 600;
+  white-space: nowrap; letter-spacing: 0.01em;
+}
+.badge-topic   { background: rgba(92,124,250,0.1);  border: 1px solid rgba(92,124,250,0.25);  color: var(--accent2); }
+.badge-auto    { background: rgba(92,124,250,0.08); border: 1px solid rgba(92,124,250,0.18);  color: var(--accent2); }
+.badge-facil   { background: var(--green-dim);      border: 1px solid rgba(45,212,160,0.3);   color: var(--green); }
+.badge-medio   { background: var(--yellow-dim);     border: 1px solid rgba(245,200,66,0.3);   color: var(--yellow); }
+.badge-dificil { background: var(--red-dim);        border: 1px solid rgba(245,101,101,0.3);  color: var(--red); }
+
+.q-counter { font-size: 14px; color: var(--muted); white-space: nowrap; font-family: 'IBM Plex Mono', monospace; }
+.topbar-sep { flex: 1; }
+
+.btn-nav {
+  background: var(--card); border: 1px solid var(--border2); color: var(--text-dim);
+  padding: 4px 10px; border-radius: 6px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.11s; white-space: nowrap;
+}
+.btn-nav:hover:not(:disabled) { border-color: var(--accent); color: var(--text); }
+.btn-nav:disabled { opacity: 0.28; cursor: not-allowed; }
+
+.btn-random {
+  background: rgba(92,124,250,0.12); border: 1px solid rgba(92,124,250,0.25);
+  color: var(--accent2); padding: 5px 12px; border-radius: 6px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all 0.14s; white-space: nowrap;
+}
+.btn-random:hover { background: rgba(92,124,250,0.2); }
+
+.btn-new {
+  background: linear-gradient(135deg, var(--accent), #7c55f5);
+  border: none; color: white; padding: 6px 16px; border-radius: 7px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all 0.14s;
+  box-shadow: 0 0 18px rgba(92,124,250,0.25);
+  white-space: nowrap; letter-spacing: 0.01em;
+}
+.btn-new:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-new:disabled { opacity: 0.38; cursor: not-allowed; transform: none; }
+
+.content {
+  flex: 1; display: flex;
+  flex-direction: column;
+  overflow: visible;
+  min-height: 0;
+}
+#contentArea {
+  flex: 1;
+  position: relative;
+  overflow: visible;
+  min-width: 0;
+}
+.state-empty, .state-loading, .question-wrap {
+  width: 100%;
+  display: none;
+  flex-direction: column;
+  overflow: visible;
+}
+.state-empty.visible   { display: flex; }
+.state-loading.visible { display: flex; }
+.question-wrap.show    { display: flex; }
+
+.state-icon  { font-size: 2.8rem; opacity: 0.3; }
+.state-text  { font-size: 14px; line-height: 1.75; }
+.state-text strong { color: var(--text); }
+.spin {
+  width: 38px; height: 38px;
+  border: 3px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-msg { font-size: 14px; font-style: italic; color: var(--text-dim); }
+
+.question-wrap .question-top {
+  flex: none;
+  padding: 14px 16px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.study-section {
+  background: rgba(13,30,25,0.7);
+  border: 1px solid rgba(45,212,160,0.22);
+  border-left: 3px solid var(--green);
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.study-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 13px; cursor: pointer; user-select: none;
+  transition: background 0.12s;
+}
+.study-header:hover { background: rgba(45,212,160,0.05); }
+.study-header-left  { display: flex; align-items: center; gap: 7px; flex: 1; }
+.study-icon         { font-size: 14px; }
+.study-title        { font-size: 14px; font-weight: 700; color: var(--green); letter-spacing: 0.05em; text-transform: uppercase; }
+.study-subtitle     { font-size: 14px; color: rgba(45,212,160,0.6); margin-left: 4px; }
+.study-toggle-btn   { font-size: 14px; color: var(--green); transition: transform 0.22s; flex-shrink: 0; }
+.study-toggle-btn.open { transform: rotate(180deg); }
+
+.study-body {
+  overflow: hidden;
+  max-height: 1000px;
+  transition: max-height 0.3s ease;
+}
+.study-body.collapsed { max-height: 0; }
+.study-body-inner { padding: 0 13px 12px; display: flex; flex-direction: column; gap: 8px; }
+
+.study-card {
+  background: rgba(0,0,0,0.25); border-radius: 7px; padding: 10px 12px;
+  border: 1px solid rgba(45,212,160,0.1);
+}
+.study-card-label {
+  font-size: 14px; font-weight: 700; letter-spacing: 0.09em;
+  text-transform: uppercase; margin-bottom: 5px;
+}
+.study-card-text {
+  font-size: 14px; line-height: 1.75; color: var(--text-dim);
+}
+.study-card-text code {
+  font-family: 'IBM Plex Mono', monospace; font-size: 14px;
+  background: rgba(45,212,160,0.1); color: var(--green);
+  padding: 1px 4px; border-radius: 3px;
+}
+.study-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.study-tag {
+  padding: 2px 8px; border-radius: 12px; font-size: 14px;
+  background: rgba(45,212,160,0.08); border: 1px solid rgba(45,212,160,0.2);
+  color: rgba(45,212,160,0.8);
+}
+.study-tag.err {
+  background: rgba(245,101,101,0.08); border-color: rgba(245,101,101,0.2);
+  color: rgba(245,101,101,0.85);
+}
+.study-examples {
+  display: flex; flex-direction: column; gap: 5px;
+}
+.study-example-item {
+  background: rgba(0,0,0,0.3); border: 1px solid var(--border2);
+  border-radius: 6px; padding: 8px 10px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 14px;
+  color: #aad4cc; white-space: pre-wrap; line-height: 1.6;
+}
+.study-summary {
+  background: rgba(45,212,160,0.06); border: 1px solid rgba(45,212,160,0.18);
+  border-radius: 6px; padding: 8px 12px;
+  font-size: 14px; color: var(--green); font-style: italic; line-height: 1.6;
+  display: flex; align-items: flex-start; gap: 6px;
+}
+
+.enunciado-card {
+  background: var(--card); border: 1px solid var(--border2);
+  border-left: 3px solid var(--accent); border-radius: 10px; padding: 13px 15px;
+  flex-shrink: 0;
+}
+.card-label {
+  font-size: 14px; font-weight: 700; letter-spacing: 0.09em;
+  text-transform: uppercase; margin-bottom: 7px;
+}
+.enunciado-text {
+  font-size: 14px; line-height: 1.78; white-space: pre-wrap;
+}
+.enunciado-text code {
+  font-family: 'IBM Plex Mono', monospace; font-size: 14px;
+  background: rgba(92,124,250,0.13); color: var(--accent2);
+  padding: 1px 4px; border-radius: 3px;
+}
+
+.exemplo-card {
+  background: var(--blue-dim); border: 1px solid rgba(91,156,246,0.2);
+  border-radius: 7px; padding: 10px 12px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 14px;
+  color: var(--blue); white-space: pre-wrap; flex-shrink: 0; line-height: 1.65;
+}
+
+.concepts-row { display: flex; flex-wrap: wrap; gap: 4px; flex-shrink: 0; }
+.concept-tag {
+  background: rgba(92,124,250,0.08); border: 1px solid rgba(92,124,250,0.2);
+  color: var(--accent2); padding: 2px 8px; border-radius: 20px;
+  font-size: 14px; font-weight: 600;
+}
+
+.hints-panel {
+  display: none;
+  margin: 0 16px 8px;
+  background: rgba(30,25,10,0.7);
+  border: 1px solid rgba(245,200,66,0.22);
+  border-radius: 9px; overflow: hidden; flex-shrink: 0;
+}
+.hints-panel.show { display: block; }
+.hints-header {
+  padding: 7px 11px; display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; user-select: none;
+}
+.hints-header:hover { background: rgba(245,200,66,0.04); }
+.hints-header-left { display: flex; align-items: center; gap: 6px; }
+.hints-label  { font-size: 14px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--yellow); }
+.hints-count  { font-size: 14px; color: rgba(245,200,66,0.5); font-family: 'IBM Plex Mono', monospace; }
+.hints-chevron { font-size: 14px; color: var(--yellow); transition: transform 0.22s; flex-shrink: 0; }
+.hints-chevron.open { transform: rotate(180deg); }
+
+.hints-body { overflow: hidden; max-height: 600px; transition: max-height 0.25s ease; }
+.hints-body.collapsed { max-height: 0; }
+.hints-body-inner { padding: 0 11px 9px; display: flex; flex-direction: column; gap: 5px; }
+
+.hint-item {
+  background: rgba(245,200,66,0.05); border: 1px solid rgba(245,200,66,0.13);
+  border-radius: 7px; padding: 8px 10px;
+  font-size: 14px; line-height: 1.65; color: var(--text);
+}
+.hint-num { font-size: 14px; font-weight: 700; color: var(--yellow); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+.hint-item code {
+  font-family: 'IBM Plex Mono', monospace; font-size: 14px;
+  background: rgba(245,200,66,0.1); color: var(--yellow);
+  padding: 1px 4px; border-radius: 3px;
+}
+
+.editor-section { flex-shrink: 0; padding: 0 16px 8px; }
+.editor-chrome {
+  background: #0a0b11; border-radius: 9px;
+  border: 1px solid var(--border2); overflow: hidden;
+}
+.editor-titlebar {
+  padding: 7px 12px; display: flex; align-items: center; gap: 6px;
+  border-bottom: 1px solid var(--border2); background: rgba(0,0,0,0.3);
+}
+.mac-dot { width: 9px; height: 9px; border-radius: 50%; }
+.mac-r { background: #ff5f57; } .mac-y { background: #febc2e; } .mac-g { background: #28c840; }
+.editor-fname { margin-left: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--muted); }
+.monaco-wrapper { height: 210px; width: 100%; position: relative; }
+
+.actions {
+  padding: 0 16px 10px;
+  display: flex; gap: 7px; align-items: center; flex-shrink: 0;
+}
+.btn-verify {
+  background: var(--green); color: #071a12; border: none;
+  padding: 8px 20px; border-radius: 7px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all 0.12s;
+  box-shadow: 0 0 16px rgba(45,212,160,0.18);
+}
+.btn-verify:hover:not(:disabled) { filter: brightness(1.07); transform: translateY(-1px); }
+.btn-verify:disabled { opacity: 0.38; cursor: not-allowed; transform: none; }
+
+.btn-hint {
+  background: var(--card); border: 1px solid var(--border2); color: var(--text-dim);
+  padding: 8px 14px; border-radius: 7px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.12s;
+}
+.btn-hint:hover:not(:disabled) { border-color: var(--yellow); color: var(--yellow); }
+.btn-hint:disabled { opacity: 0.38; cursor: not-allowed; }
+
+.btn-clear {
+  background: transparent; border: 1px solid var(--border2); color: var(--muted);
+  padding: 8px 12px; border-radius: 7px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.12s;
+}
+.btn-clear:hover { color: var(--text); border-color: var(--text-dim); }
+
+.kbd-hint {
+  font-size: 14px; color: var(--muted);
+  display: flex; align-items: center; gap: 3px; margin-left: auto;
+}
+kbd {
+  background: var(--card2); border: 1px solid var(--border2);
+  border-radius: 3px; padding: 1px 4px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--muted);
+}
+
+.feedback-section {
+  padding: 0 16px 14px;
+}
+.feedback-section::-webkit-scrollbar { width: 3px; }
+.feedback-section::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.feedback-box {
+  display: none; border-radius: 11px; overflow: hidden;
+  border: 1px solid var(--border2);
+}
+.feedback-box.show { display: block; animation: fadeUp 0.2s ease; }
+@keyframes fadeUp { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+
+.fb-hdr { padding: 10px 14px; display: flex; align-items: center; gap: 8px; }
+.fb-icon {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 14px; flex-shrink: 0; font-weight: 700;
+}
+.fb-icon.ok  { background: rgba(45,212,160,0.18); color: var(--green); }
+.fb-icon.err { background: rgba(245,101,101,0.18); color: var(--red); }
+.fb-title { font-size: 14px; font-weight: 700; }
+.fb-title.ok  { color: var(--green); }
+.fb-title.err { color: var(--red); }
+.fb-pts { margin-left: auto; font-size: 14px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
+
+.fb-body { padding: 0 14px 12px; display: flex; flex-direction: column; gap: 8px; }
+.fb-sec {
+  background: var(--card); border-radius: 8px; padding: 10px 12px;
+  border: 1px solid var(--border); border-left-width: 2px;
+}
+.fb-sec.ok    { border-left-color: var(--green); }
+.fb-sec.err   { border-left-color: var(--red); }
+.fb-sec.info  { border-left-color: var(--blue); }
+.fb-sec.tip   { border-left-color: var(--yellow); }
+.fb-sec.warn  { border-left-color: var(--orange); }
+.fb-sec-title {
+  font-size: 14px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.fb-sec-text { font-size: 14px; line-height: 1.72; white-space: pre-wrap; }
+.fb-sec-text code {
+  font-family: 'IBM Plex Mono', monospace; font-size: 14px;
+  background: rgba(92,124,250,0.1); color: var(--accent2);
+  padding: 1px 4px; border-radius: 3px;
+}
+.fb-sec-text pre {
+  background: #080910; border: 1px solid var(--border2); border-radius: 6px;
+  padding: 10px 12px; margin-top: 7px; overflow-x: auto;
+  font-family: 'IBM Plex Mono', monospace; font-size: 14px; white-space: pre; position: relative;
+}
+.fb-sec-text pre::after {
+  content: 'JS'; position: absolute; top: 4px; right: 7px;
+  font-size: 14px; color: var(--muted);
+  font-family: 'IBM Plex Sans', sans-serif; font-weight: 700; letter-spacing: 0.08em;
+}
+.fb-alts { display: flex; flex-direction: column; gap: 7px; margin-top: 4px; }
+.fb-alt-item { background: #080910; border: 1px solid var(--border2); border-radius: 6px; overflow: hidden; }
+.fb-alt-label {
+  font-size: 14px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--accent2); padding: 4px 9px;
+  background: rgba(92,124,250,0.05); border-bottom: 1px solid var(--border2);
+}
+.fb-alt-code {
+  padding: 8px 10px; font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px; line-height: 1.6; overflow-x: auto; white-space: pre; color: #ccd6f6;
+}
+
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; }
+.overlay.show { display: block; }
+
+.history-drawer {
+  position: fixed; right: 0; top: var(--header-h); bottom: 0;
+  width: 300px; background: var(--surface); border-left: 1px solid var(--border);
+  transform: translateX(100%); transition: transform 0.22s; z-index: 101;
+  display: flex; flex-direction: column;
+}
+.history-drawer.open { transform: translateX(0); }
+.drawer-hdr {
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.drawer-hdr strong { font-size: 14px; }
+.drawer-close { background: none; border: none; color: var(--muted); font-size: 1rem; cursor: pointer; }
+.drawer-close:hover { color: var(--text); }
+.drawer-list { overflow-y: auto; flex: 1; padding: 8px; display: flex; flex-direction: column; gap: 5px; }
+
+.history-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 7px; padding: 9px; cursor: pointer;
+  transition: all 0.11s; border-left: 2px solid var(--muted);
+}
+.history-item:hover { border-color: var(--accent); }
+.history-item.ok  { border-left-color: var(--green); }
+.history-item.err { border-left-color: var(--red); }
+.hi-topic { font-size: 14px; color: var(--muted); }
+.hi-text  { font-size: 14px; margin-top: 2px; line-height: 1.4; }
+.hi-meta  { font-size: 14px; color: var(--muted); margin-top: 4px; display: flex; gap: 6px; }
+
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75); z-index: 200;
+  align-items: flex-start; justify-content: center;
+  padding: 28px 16px; overflow-y: auto;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 13px; width: 100%; max-width: 800px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6); animation: modalIn 0.18s ease;
+}
+@keyframes modalIn { from { opacity:0; transform: translateY(-12px); } to { opacity:1; transform: translateY(0); } }
+.modal-hdr {
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 9px;
+}
+.modal-hdr h2 { font-size: 14px; font-weight: 700; flex: 1; }
+.modal-tabs { display: flex; gap: 4px; }
+.modal-tab {
+  padding: 4px 11px; border-radius: 5px; border: 1px solid var(--border2);
+  background: var(--card); color: var(--muted); cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600; transition: all 0.11s;
+}
+.modal-tab.active { background: var(--accent); border-color: var(--accent); color: white; }
+.modal-tab:hover:not(.active) { color: var(--text); }
+.modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 2px; }
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+.modal-footer { padding: 0 18px 16px; display: flex; gap: 7px; flex-wrap: wrap; }
+
+.resumo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px,1fr)); gap: 7px; }
+.resumo-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 7px; text-align: center; }
+.resumo-num { font-size: 1.6rem; font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
+.resumo-lbl { font-size: 14px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.07em; }
+
+.prog-wrap { background: var(--border); border-radius: 4px; height: 7px; overflow: hidden; margin-top: 4px; }
+.prog-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+
+.revisao-list { display: flex; flex-direction: column; gap: 9px; }
+.rev-item { background: var(--card); border: 1px solid var(--border2); border-radius: 9px; overflow: hidden; }
+.rev-hdr {
+  padding: 9px 12px; display: flex; align-items: center; gap: 7px;
+  cursor: pointer; user-select: none;
+}
+.rev-hdr:hover { background: rgba(255,255,255,0.02); }
+.rev-badge { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; flex-shrink: 0; }
+.rev-badge.ok  { background: rgba(45,212,160,0.18); color: var(--green); }
+.rev-badge.err { background: rgba(245,101,101,0.18); color: var(--red); }
+.rev-info { flex: 1; min-width: 0; }
+.rev-topic { font-size: 14px; color: var(--accent2); font-weight: 700; margin-bottom: 1px; }
+.rev-enunc { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rev-pts { font-size: 14px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; flex-shrink: 0; }
+.rev-tog { font-size: 14px; color: var(--muted); flex-shrink: 0; }
+.rev-body { padding: 0 12px 10px; display: none; flex-direction: column; gap: 7px; }
+.rev-body.open { display: flex; }
+.rev-bloco { background: var(--surface); border-radius: 6px; padding: 9px 10px; }
+.rev-bloco-lbl { font-size: 14px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 4px; }
+.rev-bloco pre { font-family: 'IBM Plex Mono', monospace; font-size: 14px; white-space: pre-wrap; background: #080910; border-radius: 5px; padding: 8px; margin-top: 4px; }
+
+.btn-pdf  { background: linear-gradient(135deg,#c53030,#e53e3e); color: white; border: none; padding: 7px 16px; border-radius: 7px; font-family: 'IBM Plex Sans',sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; }
+.btn-pdf:hover:not(:disabled) { filter: brightness(1.1); }
+.btn-pdf:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-json { background: var(--card); border: 1px solid var(--border2); color: var(--text); padding: 7px 14px; border-radius: 7px; font-family: 'IBM Plex Sans',sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; }
+.btn-json:hover { border-color: var(--accent); }
+.btn-clear-data { background: transparent; border: 1px solid rgba(245,101,101,0.3); color: var(--red); padding: 7px 12px; border-radius: 7px; font-family: 'IBM Plex Sans',sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; margin-left: auto; }
+.btn-clear-data:hover { background: rgba(245,101,101,0.07); }
+
+.estudos-overlay {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: var(--bg); flex-direction: column; overflow: hidden;
+}
+.estudos-overlay.open { display: flex; }
+
+.estudos-hdr {
+  padding: 10px 20px; display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+  background: rgba(12,14,20,0.97); backdrop-filter: blur(12px);
+}
+.estudos-title {
+  font-size: 14px; font-weight: 700;
+  background: linear-gradient(135deg, var(--green), var(--blue));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.estudos-search {
+  flex: 1; max-width: 320px; padding: 6px 12px;
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: 20px; color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; outline: none;
+}
+.estudos-search:focus { border-color: var(--green); }
+.estudos-search::placeholder { color: var(--muted); }
+
+.estudos-body { flex: 1; overflow: hidden; display: grid; grid-template-columns: 240px 1fr; min-height: 0; }
+.estudos-nav { border-right: 1px solid var(--border); overflow-y: auto; padding: 10px 8px; }
+
+.estudos-grp-hdr {
+  padding: 6px 9px 2px; font-size: 14px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+}
+.estudos-nav-item {
+  padding: 5px 9px; border-radius: 5px; cursor: pointer;
+  font-size: 14px; color: var(--text-dim); transition: all 0.1s;
+  display: flex; align-items: center; gap: 5px; border: 1px solid transparent; margin-bottom: 1px;
+}
+.estudos-nav-item:hover { background: var(--card); color: var(--text); }
+.estudos-nav-item.ativo  { background: rgba(45,212,160,0.08); border-color: rgba(45,212,160,0.22); color: var(--green); }
+.estudos-nav-item.match  { background: var(--yellow-dim); color: var(--yellow); border-color: rgba(245,200,66,0.18); }
+
+.estudos-content-wrap { overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.estudos-content-wrap::-webkit-scrollbar { width: 4px; }
+.estudos-content-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+.estudos-content { padding: 18px 24px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; }
+.estudos-empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px; color: var(--muted); text-align: center; padding: 60px;
+}
+
+.estudos-topic-title { font-size: 1.35rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.estudos-topic-desc  { font-size: 14px; color: var(--text-dim); line-height: 1.75; }
+.etags { display: flex; flex-wrap: wrap; gap: 4px; }
+.etag  { padding: 2px 8px; border-radius: 12px; font-size: 14px; font-weight: 600; background: rgba(92,124,250,0.08); border: 1px solid rgba(92,124,250,0.2); color: var(--accent2); }
+.etag.g { background: rgba(45,212,160,0.08); border-color: rgba(45,212,160,0.2); color: var(--green); }
+.etag.b { background: rgba(91,156,246,0.08); border-color: rgba(91,156,246,0.2); color: var(--blue); }
+
+.estudos-subtopic { border-left: 2px solid var(--border2); padding-left: 12px; }
+.estudos-subtopic:hover { border-left-color: var(--accent); }
+.sub-toggle { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 3px 0; }
+.sub-toggle:hover .sub-title { color: var(--accent2); }
+.sub-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+.sub-arrow { font-size: 14px; color: var(--muted); transition: transform 0.2s; }
+.sub-arrow.open { transform: rotate(90deg); }
+.sub-body { overflow: hidden; max-height: 3000px; transition: max-height 0.28s ease; }
+.sub-body.collapsed { max-height: 0; }
+
+.estudos-card { background: var(--card); border: 1px solid var(--border2); border-radius: 9px; padding: 12px 14px; margin-top: 7px; }
+.estudos-card-title { font-size: 14px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--accent2); margin-bottom: 7px; }
+.estudos-card p { font-size: 14px; line-height: 1.8; }
+.estudos-card code { font-family: 'IBM Plex Mono', monospace; font-size: 14px; background: rgba(92,124,250,0.1); color: var(--accent2); padding: 1px 4px; border-radius: 3px; }
+
+.code-block-wrap { background: #0a0b12; border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; margin-top: 9px; }
+.code-block-hdr {
+  padding: 5px 11px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border2); background: rgba(0,0,0,0.3);
+}
+.code-block-lang { font-size: 14px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+.btn-copy { background: var(--border2); border: none; color: var(--muted); font-size: 14px; padding: 2px 6px; border-radius: 3px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; }
+.btn-copy:hover { color: var(--text); }
+.code-block-wrap pre {
+  font-family: 'IBM Plex Mono', monospace; font-size: 14px;
+  line-height: 1.7; padding: 12px 14px; overflow-x: auto; margin: 0;
+  color: #c8d3f5; white-space: pre; background: transparent;
+}
+
+.ctx-box {
+  background: rgba(91,156,246,0.05); border: 1px solid rgba(91,156,246,0.16);
+  border-radius: 6px; padding: 8px 12px; margin-top: 5px;
+  font-size: 14px; color: var(--blue); line-height: 1.62;
+}
+.ctx-label { font-size: 14px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); margin-bottom: 3px; }
+
+.estudos-ai-panel { border-top: 1px solid var(--border); flex-shrink: 0; background: var(--surface); transition: height 0.05s linear; }
+.ai-chat-resize-handle { height: 8px; background: var(--border); cursor: ns-resize; display: flex; align-items: center; justify-content: center; transition: background 0.15s; flex-shrink: 0; }
+.ai-chat-resize-handle:hover, .ai-chat-resize-handle.dragging { background: var(--accent); }
+.ai-chat-resize-handle::after { content: ''; width: 50px; height: 3px; border-radius: 2px; background: var(--muted); opacity: 0.5; }
+.ai-chat-hdr { padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; gap: 7px; border-bottom: 1px solid var(--border); }
+.ai-chat-hdr-left { display: flex; align-items: center; gap: 8px; }
+.ai-chat-hdr span { font-size: 14px; font-weight: 700; color: var(--accent2); }
+.ai-chat-hdr small { font-size: 14px; color: var(--muted); }
+.ai-chat-hdr-controls { display: flex; align-items: center; gap: 6px; }
+.chat-height-label { font-size: 12px; color: var(--muted); }
+.ai-chat-msgs { overflow-y: auto; padding: 9px 12px; display: flex; flex-direction: column; gap: 7px; }
+.ai-msg { padding: 7px 10px; border-radius: 7px; font-size: 14px; line-height: 1.62; max-width: 88%; }
+.ai-msg.user { background: rgba(92,124,250,0.1); border: 1px solid rgba(92,124,250,0.2); align-self: flex-end; }
+.ai-msg.ai   { background: var(--card); border: 1px solid var(--border); align-self: flex-start; }
+.ai-msg code { font-family: 'IBM Plex Mono', monospace; font-size: 14px; background: rgba(92,124,250,0.1); color: var(--accent2); padding: 1px 3px; border-radius: 3px; }
+.ai-msg pre  { font-family: 'IBM Plex Mono', monospace; font-size: 14px; white-space: pre-wrap; background: #080910; border-radius: 5px; padding: 7px 9px; margin-top: 5px; overflow-x: auto; }
+.ai-chat-input { display: flex; gap: 7px; padding: 9px 12px; border-top: 1px solid var(--border); }
+.ai-chat-input input {
+  flex: 1; padding: 6px 10px;
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: 6px; color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; outline: none;
+}
+.ai-chat-input input:focus { border-color: var(--accent); }
+.ai-chat-input input::placeholder { color: var(--muted); }
+.btn-send {
+  background: var(--accent); border: none; color: white;
+  padding: 6px 14px; border-radius: 6px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.btn-send:hover:not(:disabled) { filter: brightness(1.1); }
+.btn-send:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.typing { display: flex; gap: 3px; align-items: center; padding: 4px 0; }
+.typing span { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); animation: pulse 1.1s ease infinite; }
+.typing span:nth-child(2) { animation-delay: 0.18s; }
+.typing span:nth-child(3) { animation-delay: 0.36s; }
+@keyframes pulse { 0%,80%,100% { transform: scale(0.65); opacity: 0.35; } 40% { transform: scale(1); opacity: 1; } }
+
+#confete { position: fixed; inset: 0; pointer-events: none; z-index: 9998; display: none; }
+
+.toast {
+  position: fixed; bottom: 18px; right: 18px; z-index: 9999;
+  background: var(--card2); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 9px 14px;
+  font-size: 14px; font-weight: 600;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+  display: flex; align-items: center; gap: 6px;
+  animation: fadeUp 0.16s ease; transition: opacity 0.28s;
+}
+.toast.ok   { border-left: 2px solid var(--green); }
+.toast.err  { border-left: 2px solid var(--red); }
+.toast.info { border-left: 2px solid var(--blue); }
+
+.hljs-keyword   { color: #c792ea; }
+.hljs-built_in  { color: #82aaff; }
+.hljs-string    { color: #c3e88d; }
+.hljs-number    { color: #f78c6c; }
+.Comentario   { display: none !important; }
+.hljs-title     { color: #82aaff; }
+.hljs-operator  { color: #89ddff; }
+.hljs-literal   { color: #ff5874; }
+
+@media (max-width: 860px) {
+  :root { --sidebar-w: 230px; }
+  .estudos-body { grid-template-columns: 1fr; }
+  .estudos-nav  { display: none; }
+}
+@media (max-width: 600px) {
+  .sidebar { display: none; }
+  .header-nav .hbtn span { display: none; }
+  .kbd-hint { display: none; }
+  .monaco-wrapper { height: 170px; }
+  .question-top { padding: 10px 10px 8px; }
+  .hints-panel { margin: 0 10px 6px; }
+  .editor-section { padding: 0 10px 7px; }
+  .actions { padding: 0 10px 8px; }
+  .feedback-section { padding: 0 10px 12px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <div class="logo-mark">🧠</div>
+    <div>
+      <div class="logo-text">JS Master AI</div>
+      <div class="logo-sub">v7.0 · Ollama · :3002</div>
+    </div>
+  </div>
+  <div class="header-sep"></div>
+  <div style="display:flex;align-items:center;gap:7px">
+    <div class="status-pill">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">verificando...</span>
+    </div>
+    <button class="hbtn" onclick="openHistory()">📋 <span>Histórico</span></button>
+    <button class="hbtn" onclick="openModal()">📊 <span>Revisão</span></button>
+    <button class="hbtn primary" onclick="openEstudos()">📚 <span>Estudos</span></button>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Recolher/expandir">◀</button>
+    <div class="sidebar-inner">
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-num" id="statTotal" style="color:var(--yellow)">0</div><div class="stat-lbl">Feitas</div></div>
+        <div class="stat-box"><div class="stat-num" id="statCertas" style="color:var(--green)">0</div><div class="stat-lbl">Acertos</div></div>
+        <div class="stat-box"><div class="stat-num" id="statErradas" style="color:var(--red)">0</div><div class="stat-lbl">Erros</div></div>
+      </div>
+      <div class="level-section">
+        <div class="sec-label">Nível</div>
+        <div class="level-btns">
+          <button class="level-btn active" data-nivel="auto" onclick="setNivel('auto')">🎲 Automático</button>
+          <button class="level-btn" data-nivel="facil" onclick="setNivel('facil')">🟢 Fácil</button>
+          <button class="level-btn" data-nivel="medio" onclick="setNivel('medio')">🟡 Médio</button>
+          <button class="level-btn" data-nivel="dificil" onclick="setNivel('dificil')">🔴 Difícil</button>
+        </div>
+      </div>
+      <div class="topics-section">
+        <div class="sec-label">Tópicos</div>
+        <input class="topic-search" id="topicSearch" type="text" placeholder="🔍 Buscar tópico..." oninput="filterTopics(this.value)">
+        <div class="topics-scroll" id="topicsList"></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="badge badge-topic" id="topicBadge">Selecione um tópico</div>
+      <div class="badge badge-auto" id="levelBadge">🎲 Auto</div>
+      <span class="q-counter" id="qCounter"></span>
+      <div class="topbar-sep"></div>
+      <button class="btn-random" onclick="randomQuestion()">🎲 Aleatório</button>
+      <button class="btn-nav" id="btnPrev" disabled onclick="navHistory(-1)">← Ant.</button>
+      <button class="btn-nav" id="btnNext" disabled onclick="navHistory(1)">Próx. →</button>
+      <button class="btn-new" id="btnNew" onclick="newQuestion()" disabled>✨ Nova</button>
+    </div>
+
+    <div class="content">
+      <div id="contentArea">
+        <div class="state-empty" id="stateEmpty">
+          <div class="state-icon">🧠</div>
+          <div class="state-text"><strong>Selecione um tópico</strong> na barra lateral<br>e clique em <strong>✨ Nova</strong> para começar.</div>
+        </div>
+        <div class="state-loading" id="stateLoading">
+          <div class="spin"></div>
+          <div class="loading-msg" id="loadingMsg">Gerando questão com IA...</div>
+        </div>
+
+        <div class="question-wrap" id="questionWrap">
+          <div class="question-top" id="questionTop">
+            <div class="study-section" id="studySection" style="display:none">
+              <div class="study-header" id="studyHeader" onclick="toggleStudy()">
+                <div class="study-header-left"><span class="study-icon">📖</span><span class="study-title">Material de Estudo</span><span class="study-subtitle" id="studyTopicLabel"></span></div>
+                <span class="study-toggle-btn open" id="studyToggleIcon">▼</span>
+              </div>
+              <div class="study-body" id="studyBody"><div class="study-body-inner" id="studyBodyInner"></div></div>
+            </div>
+            <div class="enunciado-card"><div class="card-label" style="color:var(--accent2)">📝 Enunciado</div><div class="enunciado-text" id="enunciadoText"></div></div>
+            <div id="exemploWrap" style="display:none;"><div class="card-label" style="color:var(--blue);margin-bottom:5px">💡 Exemplo</div><div class="exemplo-card" id="exemploText"></div></div>
+            <div class="concepts-row" id="conceptsRow"></div>
+          </div>
+          <div class="hints-panel" id="hintsPanel">
+            <div class="hints-header" id="hintsHeader" onclick="toggleHints()">
+              <div class="hints-header-left"><span class="hints-label">💡 Dicas</span><span class="hints-count" id="hintsCount"></span></div>
+              <span class="hints-chevron open" id="hintsChevron">▼</span>
+            </div>
+            <div class="hints-body" id="hintsBody"><div class="hints-body-inner" id="hintsContent"></div></div>
+          </div>
+          <div class="editor-section"><div class="editor-chrome"><div class="editor-titlebar"><div class="mac-dot mac-r"></div><div class="mac-dot mac-y"></div><div class="mac-dot mac-g"></div><span class="editor-fname">solucao.js</span></div><div class="monaco-wrapper" id="monacoWrapper"></div></div></div>
+          <div class="actions"><button class="btn-verify" id="btnVerify" onclick="verify()">✓ Verificar</button><button class="btn-hint" id="btnHint" onclick="getHint()">💡 Dica</button><button class="btn-clear" onclick="clearEditor()">✕ Limpar</button><div class="kbd-hint"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> verificar</div></div>
+          <div class="feedback-section"><div class="feedback-box" id="feedbackBox"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeHistory()"></div>
+<div class="history-drawer" id="historyDrawer"><div class="drawer-hdr"><strong>📋 Histórico da Sessão</strong><button class="drawer-close" onclick="closeHistory()">✕</button></div><div class="drawer-list" id="drawerList"></div></div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-hdr"><h2>📊 Revisão & Relatório</h2><div class="modal-tabs"><button class="modal-tab active" id="tabResumo" onclick="switchTab('resumo')">📈 Resumo</button><button class="modal-tab" id="tabRevisao" onclick="switchTab('revisao')">📋 Revisão</button></div><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body" id="modalBody"></div><div class="modal-footer"><button class="btn-pdf" id="btnPDF" onclick="generatePDF()">📄 Gerar PDF</button><button class="btn-json" onclick="exportJSON()">💾 JSON</button><button class="btn-clear-data" onclick="clearAllData()">🗑 Limpar Dados</button></div></div></div>
+
+<div class="estudos-overlay" id="estudosOverlay"><div class="estudos-hdr"><div class="logo-mark" style="background:linear-gradient(135deg,#1a6b4e,var(--green))">📚</div><div class="estudos-title">Estudos AI</div><input class="estudos-search" id="estudosSearch" type="text" placeholder="🔍 Buscar tópico..." oninput="searchEstudos(this.value)"><div style="margin-left:auto;display:flex;gap:6px;align-items:center"><button class="hbtn" id="btnGerarExplicacao" onclick="aiGerarExplicacao()" style="display:none">🤖 Explicar</button><button class="hbtn" id="btnGerarExemplos" onclick="aiGerarExemplos()" style="display:none">🧪 Exemplos</button><button class="hbtn" id="btnGerarQuestaoEstudo" onclick="gerarQuestaoEstudo()" style="display:none">👩‍🏫 Questão</button><button class="hbtn" onclick="closeEstudos()">✕ Fechar</button></div></div><div class="estudos-body"><nav class="estudos-nav" id="estudosNav"></nav><div style="display:flex;flex-direction:column;flex:1;overflow:hidden;"><div class="estudos-content-wrap" id="estudosContentWrap"><div class="estudos-empty" id="estudosEmpty"><div style="font-size:2.8rem;opacity:0.28">📚</div><p style="font-size:14px">Selecione um tópico para começar a estudar.</p></div><div class="estudos-content" id="estudosContent" style="display:none"></div></div><div class="estudos-ai-panel" id="aiChatPanel" style="display:none"><div class="ai-chat-resize-handle" id="chatResizeHandle"></div><div class="ai-chat-hdr"><div class="ai-chat-hdr-left"><span>🤖 Chat com IA</span><small id="aiChatTopicLabel"></small></div><div class="ai-chat-hdr-controls"><span class="chat-height-label" id="aiChatHeightLabel">50px</span></div></div><div class="ai-chat-msgs" id="aiChatMsgs"></div><div class="ai-chat-input"><input type="text" id="aiChatInput" placeholder="Pergunta sobre este tópico..." onkeydown="if(event.key==='Enter')sendAIMessage()"><button class="btn-send" id="btnSend" onclick="sendAIMessage()">Enviar</button></div></div></div></div></div>
+
+<div class="toast" id="toast" style="display:none"></div>
+<canvas id="confete"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+
+<script>
+'use strict';
+
+const TOPICS = [
+  { grupo:'📦 Fundamentos', itens:[
+    {id:'variaveis', e:'📦', n:'Variáveis (var, let, const)'},
+    {id:'tipos', e:'🔢', n:'Tipos de Dados'},
+    {id:'operadores', e:'➕', n:'Operadores Aritméticos e Lógicos'},
+    {id:'coercao', e:'🔄', n:'Coerção de Tipos'},
+    {id:'strings', e:'📝', n:'Strings e Métodos'},
+    {id:'numeros', e:'🔢', n:'Números e Math'},
+    {id:'booleanos', e:'✅', n:'Booleanos e Falsy/Truthy'},
+    {id:'nullish', e:'❓', n:'Null, Undefined e Nullish'},
+  ]},
+  { grupo:'🔀 Controle de Fluxo', itens:[
+    {id:'if-else', e:'⚖️', n:'If / Else'},
+    {id:'ternario', e:'❓', n:'Operador Ternário'},
+    {id:'switch', e:'🔀', n:'Switch / Case'},
+    {id:'nullish-op', e:'🔗', n:'Nullish Coalescing (??)'},
+    {id:'optional', e:'🔗', n:'Optional Chaining (?.)'},
+  ]},
+  { grupo:'🔁 Loops', itens:[
+    {id:'for', e:'🔄', n:'For Loop'},
+    {id:'while', e:'🔁', n:'While / Do-While'},
+    {id:'for-of', e:'📋', n:'For...of'},
+    {id:'for-in', e:'🗝️', n:'For...in'},
+    {id:'break-cont', e:'⏸️', n:'Break e Continue'},
+  ]},
+  { grupo:'⚡ Funções', itens:[
+    {id:'func-decl', e:'📌', n:'Declaração de Função'},
+    {id:'arrow', e:'🏹', n:'Arrow Functions'},
+    {id:'params', e:'📥', n:'Parâmetros e Defaults'},
+    {id:'rest-spread', e:'📦', n:'Rest e Spread'},
+    {id:'closures', e:'🔒', n:'Closures'},
+    {id:'callbacks', e:'📞', n:'Callbacks'},
+    {id:'hof', e:'🏗️', n:'Higher-Order Functions'},
+    {id:'recursao', e:'🌀', n:'Recursão'},
+    {id:'currying', e:'🍛', n:'Currying'},
+  ]},
+  { grupo:'📋 Arrays', itens:[
+    {id:'array-basico', e:'📋', n:'Arrays - Básico'},
+    {id:'array-map', e:'🗺️', n:'Array.map()'},
+    {id:'array-filter', e:'🔍', n:'Array.filter()'},
+    {id:'array-reduce', e:'📊', n:'Array.reduce()'},
+    {id:'array-find', e:'🔎', n:'Array.find() e findIndex()'},
+    {id:'array-some', e:'✅', n:'Array.some() e every()'},
+    {id:'array-flat', e:'📄', n:'Array.flat() e flatMap()'},
+    {id:'array-sort', e:'🔃', n:'Array.sort()'},
+  ]},
+  { grupo:'📦 Objetos', itens:[
+    {id:'obj-basico', e:'📦', n:'Objetos - Básico'},
+    {id:'obj-metodos', e:'🔧', n:'Object.keys/values/entries'},
+    {id:'obj-spread', e:'💫', n:'Spread em Objetos'},
+    {id:'destr-obj', e:'📤', n:'Desestruturação de Objeto'},
+    {id:'prototype', e:'🧬', n:'Prototype e Herança'},
+  ]},
+  { grupo:'🏛️ Classes', itens:[
+    {id:'class-basic', e:'🏛️', n:'Classes - Básico'},
+    {id:'heranca', e:'👶', n:'Herança (extends)'},
+    {id:'static', e:'🔒', n:'Métodos Estáticos'},
+    {id:'getset', e:'🎛️', n:'Getters e Setters'},
+    {id:'private', e:'🔐', n:'Campos Privados (#)'},
+  ]},
+  { grupo:'⏳ Assíncrono', itens:[
+    {id:'promises', e:'🤝', n:'Promises'},
+    {id:'async-await', e:'⏳', n:'Async / Await'},
+    {id:'promise-all', e:'🔀', n:'Promise.all e allSettled'},
+    {id:'fetch', e:'🌐', n:'Fetch API'},
+    {id:'try-catch', e:'🛡️', n:'Try / Catch / Finally'},
+  ]},
+  { grupo:'✨ ES6+ Moderno', itens:[
+    {id:'template-lit', e:'📝', n:'Template Literals'},
+    {id:'symbol', e:'🔣', n:'Symbol'},
+    {id:'generators', e:'⚙️', n:'Generators'},
+    {id:'proxy', e:'🪞', n:'Proxy e Reflect'},
+    {id:'weakmap', e:'🗺️', n:'Map, Set, WeakMap, WeakSet'},
+  ]},
+  { grupo:'🌐 DOM e Eventos', itens:[
+    {id:'seletores', e:'🎯', n:'Seletores DOM'},
+    {id:'manipulacao', e:'✏️', n:'Manipulação do DOM'},
+    {id:'eventos', e:'🖱️', n:'Eventos e Listeners'},
+    {id:'event-deleg', e:'📡', n:'Event Delegation'},
+  ]},
+  { grupo:'🔧 Utilitários', itens:[
+    {id:'regex', e:'🔍', n:'Expressões Regulares'},
+    {id:'json', e:'📄', n:'JSON - parse e stringify'},
+    {id:'date', e:'📅', n:'Date e Datas'},
+    {id:'error-types', e:'⚠️', n:'Tipos de Erro'},
+    {id:'modules', e:'📦', n:'Módulos (import/export)'},
+    {id:'localStorage', e:'💾', n:'localStorage e sessionStorage'},
+  ]},
+  { grupo:'🧮 Algoritmos', itens:[
+    {id:'busca', e:'🔍', n:'Algoritmos de Busca'},
+    {id:'ordenacao', e:'📊', n:'Algoritmos de Ordenação'},
+    {id:'pilha-fila', e:'📚', n:'Pilha e Fila'},
+    {id:'dinamica', e:'⚡', n:'Programação Dinâmica'},
+  ]},
+];
+
+const ESTUDOS_DB = [
+  {id:'variaveis', e:'📦', n:'Variáveis (var, let, const)', g:'📦 Fundamentos', tags:['var','let','const','escopo','hoisting'], desc:'Variáveis são contêineres para armazenar dados. JavaScript possui três formas de declaração.', subs:[
+    {t:'var — escopo de função', exp:'`var` tem escopo de função e sofre **hoisting**.', code:'function ex() {\n  console.log(x); // undefined\n  var x = 10;\n  console.log(x); // 10\n}\n\nfor (var i = 0; i < 3; i++) {}\nconsole.log(i); // 3 (vazou!)', ctx:'Evite `var` em código moderno. Prefira `let` ou `const`.'},
+    {t:'let e const', exp:'`let` tem **escopo de bloco**. `const` cria referência constante.', code:'const PI = 3.14159;\nconst usuario = { nome: \'Ana\' };\nusuario.nome = \'João\'; // ✅ objeto é mutável\n// usuario = {}; // ❌ TypeError\n\nlet total = 0;\nfor (let i = 0; i < 5; i++) { total += i; }\n// i não existe aqui', ctx:'Prefira `const` por padrão. Use `let` só quando precisar reatribuir.'},
+  ]},
+  {id:'tipos', e:'🔢', n:'Tipos de Dados', g:'📦 Fundamentos', tags:['primitivos','objetos','typeof','number','string','boolean'], desc:'JavaScript possui 7 tipos primitivos e objetos.', subs:[
+    {t:'Primitivos', exp:'Number, String, Boolean, Undefined, Null, Symbol, BigInt.', code:'let idade = 30;          // number\nlet nome = "João";        // string\nlet ativo = true;         // boolean\nlet x;                    // undefined\nlet y = null;             // null\nlet id = Symbol("uniq");  // symbol\nlet big = 9007199254740991n; // BigInt', ctx:'Primitivos são imutáveis e armazenados por valor.'},
+    {t:'typeof e Objetos', exp:'`typeof` retorna o tipo. Objetos (incluindo arrays e funções) são referências.', code:'console.log(typeof 42);        // "number"\nconsole.log(typeof "texto");    // "string"\nconsole.log(typeof true);       // "boolean"\nconsole.log(typeof undefined);  // "undefined"\nconsole.log(typeof null);       // "object" (bug histórico)\nconsole.log(typeof {});         // "object"\nconsole.log(typeof []);         // "object"\nconsole.log(typeof function(){}); // "function"', ctx:'Use `Array.isArray()` para detectar arrays.'},
+  ]},
+  {id:'operadores', e:'➕', n:'Operadores Aritméticos e Lógicos', g:'📦 Fundamentos', tags:['aritméticos','comparação','lógicos','atribuição'], desc:'Operadores executam operações em operandos.', subs:[
+    {t:'Aritméticos e Atribuição', exp:'Operações matemáticas básicas.', code:'let a = 10, b = 3;\nconsole.log(a + b);   // 13\nconsole.log(a - b);   // 7\nconsole.log(a * b);   // 30\nconsole.log(a / b);   // 3.333...\nconsole.log(a % b);   // 1 (resto)\nconsole.log(a ** b);  // 1000 (potência)\na += 5; // a = a + 5', ctx:'`+` também concatena strings.'},
+    {t:'Comparação e Lógicos', exp:'`==` vs `===`. `&&`, `||`, `!`.', code:'console.log(5 == "5");   // true (coerção)\nconsole.log(5 === "5");  // false (tipos diferentes)\nconsole.log(5 > 3 && 2 < 4); // true\nconsole.log(5 > 3 || 1 > 2); // true\nlet usuario = nome || "Anônimo"; // fallback', ctx:'Sempre prefira `===` e `!==` para evitar coerção inesperada.'},
+  ]},
+  {id:'coercao', e:'🔄', n:'Coerção de Tipos', g:'📦 Fundamentos', tags:['type coercion','conversão','truthy','falsy'], desc:'Conversão automática ou explícita entre tipos.', subs:[
+    {t:'Coerção implícita', exp:'JavaScript converte tipos automaticamente em operações.', code:'console.log(5 + "5");   // "55" (número vira string)\nconsole.log("5" - 3);   // 2 (string vira número)\nconsole.log(true + 1);   // 2 (true vira 1)\nconsole.log(false + 1);  // 1 (false vira 0)\nconsole.log(5 == "5");   // true (coerção antes da comparação)', ctx:'Use `===` para evitar surpresas.'},
+    {t:'Coerção explícita', exp:'Converta manualmente com funções construtoras.', code:'let num = Number("123");   // 123\nlet str = String(456);      // "456"\nlet bool = Boolean(0);      // false\nlet int = parseInt("12.5"); // 12\nlet float = parseFloat("12.5"); // 12.5\nlet truthy = !!1;           // true', ctx:'Falsy: `false, 0, "", null, undefined, NaN`. Todo resto é truthy.'},
+  ]},
+  {id:'strings', e:'📝', n:'Strings e Métodos', g:'📦 Fundamentos', tags:['string','métodos','template literals'], desc:'Strings representam texto e possuem diversos métodos.', subs:[
+    {t:'Métodos úteis', exp:'Manipulação de strings.', code:'let str = "JavaScript é incrível";\nconsole.log(str.length);        // 22\nconsole.log(str.toUpperCase());  // "JAVASCRIPT É INCRÍVEL"\nconsole.log(str.includes("Java")); // true\nconsole.log(str.indexOf("é"));   // 11\nconsole.log(str.slice(0, 10));   // "JavaScript"\nconsole.log(str.split(" "));     // ["JavaScript", "é", "incrível"]\nconsole.log(str.replace("incrível", "fantástico"));', ctx:'Strings são imutáveis — métodos retornam novas strings.'},
+    {t:'Template Literals', exp:'Strings com interpolação e múltiplas linhas.', code:'let nome = "Maria";\nlet idade = 25;\nlet msg = `Olá ${nome}, você tem ${idade} anos.`;\nconsole.log(msg);\nlet html = `<div>\n  <h1>${nome}</h1>\n  <p>Idade: ${idade}</p>\n</div>`;', ctx:'Use crases `` ` `` e `${}` para interpolar expressões.'},
+  ]},
+  {id:'numeros', e:'🔢', n:'Números e Math', g:'📦 Fundamentos', tags:['number','Math','parseInt','parseFloat'], desc:'JavaScript usa Number (IEEE 754) para números.', subs:[
+    {t:'Operações e precisão', exp:'Cuidado com ponto flutuante.', code:'console.log(0.1 + 0.2); // 0.30000000000000004\nconsole.log((0.1 * 10 + 0.2 * 10) / 10); // 0.3\nconsole.log(Number.isInteger(5)); // true\nconsole.log(Number.isNaN(NaN)); // true', ctx:'Para precisão decimal, use inteiros ou bibliotecas como decimal.js.'},
+    {t:'Objeto Math', exp:'Funções matemáticas.', code:'console.log(Math.PI);          // 3.14159\nconsole.log(Math.round(4.7));   // 5\nconsole.log(Math.floor(4.7));   // 4\nconsole.log(Math.ceil(4.1));    // 5\nconsole.log(Math.random());      // 0..1\nconsole.log(Math.max(1,5,3));   // 5\nconsole.log(Math.sqrt(16));      // 4', ctx:'Use `Math.floor(Math.random() * max)` para inteiros aleatórios.'},
+  ]},
+  {id:'booleanos', e:'✅', n:'Booleanos e Falsy/Truthy', g:'📦 Fundamentos', tags:['boolean','truthy','falsy','!!'], desc:'Booleanos representam verdadeiro/falso.', subs:[
+    {t:'Falsy e Truthy', exp:'Valores que se comportam como true/false em contextos booleanos.', code:'// Falsy: false, 0, "", null, undefined, NaN\nif (!"") console.log("vazio é falsy");\n\n// Truthy: todo o resto\nif ("texto") console.log("string não vazia é truthy");\nif (42) console.log("número diferente de zero é truthy");\nif ({}) console.log("objetos são sempre truthy");', ctx:'Use `!!valor` para converter para booleano explícito.'},
+  ]},
+  {id:'nullish', e:'❓', n:'Null, Undefined e Nullish', g:'📦 Fundamentos', tags:['null','undefined','nullish coalescing','optional chaining'], desc:'Valores que representam ausência.', subs:[
+    {t:'null vs undefined', exp:'`undefined` significa não atribuído. `null` é atribuído intencionalmente.', code:'let a;               // undefined\nlet b = null;        // null\nconsole.log(a == b);  // true (== considera iguais)\nconsole.log(a === b); // false (tipos diferentes)\nconsole.log(typeof null);      // "object" (bug)\nconsole.log(typeof undefined); // "undefined"', ctx:'Prefira `null` para ausência intencional.'},
+    {t:'Nullish coalescing (??)', exp:'Retorna o operando da direita se o esquerdo for null ou undefined.', code:'let valor = 0;\nlet x = valor ?? 100;  // 0 (porque 0 não é null/undefined)\nlet y = valor || 100;  // 100 (0 é falsy)\n\nlet nome = null;\nlet display = nome ?? "Anônimo"; // "Anônimo"', ctx:'Use `??` para fallback apenas para null/undefined, diferente de `||` que considera todos os falsy.'},
+    {t:'Optional chaining (?.)', exp:'Acessa propriedades sem erro se intermediário for null/undefined.', code:'const user = { profile: { name: "João" } };\nconsole.log(user?.profile?.name);   // "João"\nconsole.log(user?.address?.city);   // undefined (sem erro)\n\nconst arr = null;\nconsole.log(arr?.[0]);              // undefined', ctx:'Evita "Cannot read property of undefined".'},
+  ]},
+  {id:'if-else', e:'⚖️', n:'If / Else', g:'🔀 Controle de Fluxo', tags:['if','else','else if','condicional'], desc:'Executa código baseado em condição booleana.', subs:[
+    {t:'Estrutura básica', exp:'Blocos executados conforme condição.', code:'let idade = 18;\nif (idade >= 18) {\n  console.log("Pode dirigir");\n} else if (idade >= 16) {\n  console.log("Pode votar");\n} else {\n  console.log("Menor");\n}', ctx:'Sempre use `{}` para clareza, mesmo com uma linha.'},
+  ]},
+  {id:'ternario', e:'❓', n:'Operador Ternário', g:'🔀 Controle de Fluxo', tags:['ternary','condicional','? :'], desc:'Atalho para if-else em expressões.', subs:[
+    {t:'Uso', exp:'`condição ? expr1 : expr2`', code:'let idade = 20;\nlet status = idade >= 18 ? "Adulto" : "Menor";\nconsole.log(status); // "Adulto"\n\nfunction getMessage(user) {\n  return user?.nome ? `Olá ${user.nome}` : "Visitante";\n}', ctx:'Use para atribuições simples, não aninhe muitos ternários.'},
+  ]},
+  {id:'switch', e:'🔀', n:'Switch / Case', g:'🔀 Controle de Fluxo', tags:['switch','case','break','default'], desc:'Seleciona bloco baseado no valor de uma expressão.', subs:[
+    {t:'Estrutura', exp:'Comparação estrita (===).', code:'let dia = 3;\nswitch (dia) {\n  case 1: console.log("Domingo"); break;\n  case 2: console.log("Segunda"); break;\n  case 3: console.log("Terça"); break;\n  default: console.log("Outro dia");\n}', ctx:'Não esquecer `break` para evitar fallthrough.'},
+  ]},
+  {id:'nullish-op', e:'🔗', n:'Nullish Coalescing (??)', g:'🔀 Controle de Fluxo', tags:['nullish','coalescing','??'], desc:'Operador que retorna o lado direito se esquerdo for null/undefined.', subs:[
+    {t:'Uso', exp:'Fallback seguro.', code:'let count = 0;\nlet result = count ?? 10;  // 0 (não é null/undefined)\nlet name = null;\nlet display = name ?? "Anônimo"; // "Anônimo"', ctx:'Diferença do `||`: `??` ignora false, 0, "" como valores válidos.'},
+  ]},
+  {id:'optional', e:'🔗', n:'Optional Chaining (?.)', g:'🔀 Controle de Fluxo', tags:['optional chaining','?.','safe navigation'], desc:'Acesso seguro a propriedades aninhadas.', subs:[
+    {t:'Uso', exp:'Retorna undefined se referência for null/undefined.', code:'const obj = { a: { b: 1 } };\nconsole.log(obj?.a?.b);   // 1\nconsole.log(obj?.x?.y);   // undefined (sem erro)\n\nconst arr = null;\nconsole.log(arr?.[0]);     // undefined\n\nconst fn = null;\nconsole.log(fn?.());       // undefined', ctx:'Evita erros "Cannot read property of undefined".'},
+  ]},
+  {id:'for', e:'🔄', n:'For Loop', g:'🔁 Loops', tags:['for','loop','iteração'], desc:'Loop clássico com inicialização, condição e incremento.', subs:[
+    {t:'Estrutura', exp:'`for (inicialização; condição; incremento) { }`', code:'for (let i = 0; i < 5; i++) {\n  console.log(i);\n}\n// 0,1,2,3,4\n\nconst arr = [10,20,30];\nfor (let i = 0; i < arr.length; i++) {\n  console.log(arr[i]);\n}', ctx:'Ideal para quando se sabe o número de iterações ou precisa do índice.'},
+  ]},
+  {id:'while', e:'🔁', n:'While / Do-While', g:'🔁 Loops', tags:['while','do-while','loop'], desc:'Repete enquanto condição for verdadeira.', subs:[
+    {t:'while', exp:'Testa condição antes de executar.', code:'let i = 0;\nwhile (i < 5) {\n  console.log(i);\n  i++;\n}', ctx:'Pode não executar nenhuma vez.'},
+    {t:'do-while', exp:'Executa ao menos uma vez, testa depois.', code:'let i = 0;\ndo {\n  console.log(i);\n  i++;\n} while (i < 5);', ctx:'Garante execução mínima de uma vez.'},
+  ]},
+  {id:'for-of', e:'📋', n:'For...of', g:'🔁 Loops', tags:['for-of','iteração','valores'], desc:'Itera sobre valores de objetos iteráveis (Array, String, Map, Set).', subs:[
+    {t:'Uso', exp:'Acessa diretamente os valores.', code:'const arr = [10,20,30];\nfor (const valor of arr) {\n  console.log(valor); // 10,20,30\n}\n\nconst str = "JS";\nfor (const char of str) {\n  console.log(char); // "J","S"\n}', ctx:'Não funciona com objetos planos (use Object.values/keys/entries).'},
+  ]},
+  {id:'for-in', e:'🗝️', n:'For...in', g:'🔁 Loops', tags:['for-in','propriedades','enumeração'], desc:'Itera sobre propriedades enumeráveis de um objeto.', subs:[
+    {t:'Uso', exp:'Acessa as chaves (incluindo do protótipo).', code:'const obj = { a:1, b:2, c:3 };\nfor (const key in obj) {\n  console.log(key, obj[key]);\n}\n\n// Para arrays, prefira for-of ou for clássico\nconst arr = [10,20];\nfor (const idx in arr) {\n  console.log(idx); // "0","1" (strings)\n}', ctx:'Use `hasOwnProperty` para filtrar propriedades do protótipo.'},
+  ]},
+  {id:'break-cont', e:'⏸️', n:'Break e Continue', g:'🔁 Loops', tags:['break','continue','loop control'], desc:'Controlam o fluxo dentro de loops.', subs:[
+    {t:'break', exp:'Encerra o loop imediatamente.', code:'for (let i = 0; i < 10; i++) {\n  if (i === 5) break;\n  console.log(i); // 0-4\n}', ctx:'Sai do loop atual.'},
+    {t:'continue', exp:'Pula para a próxima iteração.', code:'for (let i = 0; i < 5; i++) {\n  if (i === 2) continue;\n  console.log(i); // 0,1,3,4\n}', ctx:'Pula apenas a iteração atual.'},
+  ]},
+  {id:'func-decl', e:'📌', n:'Declaração de Função', g:'⚡ Funções', tags:['function','declaração','hoisting'], desc:'Bloco de código reutilizável.', subs:[
+    {t:'Sintaxe', exp:'Declaração com hoisting.', code:'function saudacao(nome) {\n  return `Olá ${nome}`;\n}\nconsole.log(saudacao("Maria"));\n\n// Hoisting: pode ser chamada antes da declaração\nconsole.log(soma(2,3)); // 5\nfunction soma(a,b) { return a+b; }', ctx:'Declarações são içadas (hoisted).'},
+  ]},
+  {id:'arrow', e:'🏹', n:'Arrow Functions', g:'⚡ Funções', tags:['arrow','=>','ES6','this'], desc:'Sintaxe concisa, não possui seu próprio `this`.', subs:[
+    {t:'Sintaxe', exp:'`param => expressão` ou `(param1, param2) => { corpo }`', code:'const soma = (a,b) => a + b;\nconst quadrado = x => x * x;\nconst ola = () => "Olá";\nconsole.log(soma(2,3)); // 5\n\n// this léxico\nconst obj = {\n  nome: "João",\n  falar: () => console.log(this.nome) // this não é obj\n};', ctx:'Não usar como método se precisar acessar `this` do objeto.'},
+  ]},
+  {id:'params', e:'📥', n:'Parâmetros e Defaults', g:'⚡ Funções', tags:['parâmetros','default values','rest parameters'], desc:'Parâmetros com valores padrão e rest operator.', subs:[
+    {t:'Default parameters', exp:'Valor padrão quando argumento é undefined.', code:'function saudacao(nome = "Visitante") {\n  return `Olá ${nome}`;\n}\nconsole.log(saudacao());      // "Olá Visitante"\nconsole.log(saudacao("Ana")); // "Olá Ana"', ctx:'Só aplica se argumento for undefined.'},
+    {t:'Rest parameters', exp:'Agrupa argumentos restantes em um array.', code:'function soma(...numeros) {\n  return numeros.reduce((acc, n) => acc + n, 0);\n}\nconsole.log(soma(1,2,3,4)); // 10', ctx:'Deve ser o último parâmetro.'},
+  ]},
+  {id:'rest-spread', e:'📦', n:'Rest e Spread', g:'⚡ Funções', tags:['rest','spread','...'], desc:'`...` para espalhar ou agrupar elementos.', subs:[
+    {t:'Spread em arrays', exp:'Espalha elementos.', code:'const arr1 = [1,2];\nconst arr2 = [3,4];\nconst combinado = [...arr1, ...arr2]; // [1,2,3,4]\nconst copia = [...arr1];', ctx:'Cria shallow copy.'},
+    {t:'Spread em objetos', exp:'Espalha propriedades.', code:'const obj1 = { a:1, b:2 };\nconst obj2 = { c:3, ...obj1 }; // { c:3, a:1, b:2 }', ctx:'Propriedades posteriores sobrescrevem anteriores.'},
+  ]},
+  {id:'closures', e:'🔒', n:'Closures', g:'⚡ Funções', tags:['closure','escopo','encapsulamento'], desc:'Função que "lembra" o escopo onde foi criada.', subs:[
+    {t:'Exemplo', exp:'Função interna acessa variável da externa.', code:'function contador() {\n  let count = 0;\n  return function() {\n    count++;\n    return count;\n  };\n}\nconst c = contador();\nconsole.log(c()); // 1\nconsole.log(c()); // 2', ctx:'Usado para data hiding e factories.'},
+  ]},
+  {id:'callbacks', e:'📞', n:'Callbacks', g:'⚡ Funções', tags:['callback','função de callback','assíncrono'], desc:'Função passada como argumento para outra.', subs:[
+    {t:'Uso', exp:'Executada após uma operação.', code:'function processar(n, callback) {\n  const resultado = n * 2;\n  callback(resultado);\n}\nprocessar(5, (res) => {\n  console.log(res); // 10\n});\n\n// setTimeout\nsetTimeout(() => console.log("Após 1s"), 1000);', ctx:'Base para operações assíncronas (antes de Promises).'},
+  ]},
+  {id:'hof', e:'🏗️', n:'Higher-Order Functions', g:'⚡ Funções', tags:['HOF','map','filter','reduce'], desc:'Funções que recebem ou retornam outras funções.', subs:[
+    {t:'Exemplos', exp:'map, filter, reduce.', code:'const nums = [1,2,3];\nconst dobrados = nums.map(n => n*2);\nconst pares = nums.filter(n => n%2===0);\nconst soma = nums.reduce((a,b)=>a+b,0);\n\nfunction criarMultiplicador(fator) {\n  return n => n * fator;\n}\nconst duplicar = criarMultiplicador(2);\nconsole.log(duplicar(5)); // 10', ctx:'Essenciais para programação funcional.'},
+  ]},
+  {id:'recursao', e:'🌀', n:'Recursão', g:'⚡ Funções', tags:['recursão','recursive','base case'], desc:'Função que chama a si mesma.', subs:[
+    {t:'Exemplo', exp:'Fatorial recursivo.', code:'function fatorial(n) {\n  if (n <= 1) return 1;\n  return n * fatorial(n-1);\n}\nconsole.log(fatorial(5)); // 120', ctx:'Sempre tenha caso base para evitar loop infinito.'},
+  ]},
+  {id:'currying', e:'🍛', n:'Currying', g:'⚡ Funções', tags:['currying','função','transformação'], desc:'Transforma função com múltiplos parâmetros em sequência de funções.', subs:[
+    {t:'Exemplo', exp:'`f(a,b,c)` → `f(a)(b)(c)`', code:'function soma(a) {\n  return function(b) {\n    return a + b;\n  };\n}\nconst soma5 = soma(5);\nconsole.log(soma5(3)); // 8\n\n// Arrow version\nconst currySoma = a => b => a + b;\nconsole.log(currySoma(2)(3)); // 5', ctx:'Útil para composição e reuso parcial.'},
+  ]},
+  {id:'array-basico', e:'📋', n:'Arrays - Básico', g:'📋 Arrays', tags:['array','lista','índice'], desc:'Estrutura ordenada de elementos.', subs:[
+    {t:'Criação e acesso', exp:'Arrays são indexados por inteiros.', code:'const arr = [10,20,30];\nconsole.log(arr[0]); // 10\nconsole.log(arr.length); // 3\narr.push(40); // adiciona ao final\narr.pop();    // remove do final\narr.unshift(5); // adiciona ao início\narr.shift();     // remove do início', ctx:'Arrays são objetos com métodos especiais.'},
+  ]},
+  {id:'array-map', e:'🗺️', n:'Array.map()', g:'📋 Arrays', tags:['map','transformação'], desc:'Cria novo array transformando cada elemento.', subs:[
+    {t:'Uso', exp:'Callback retorna novo valor.', code:'const nums = [1,2,3];\nconst dobrados = nums.map(n => n * 2);\nconsole.log(dobrados); // [2,4,6]', ctx:'Não modifica o array original.'},
+  ]},
+  {id:'array-filter', e:'🔍', n:'Array.filter()', g:'📋 Arrays', tags:['filter','filtro'], desc:'Cria array com elementos que passam no teste.', subs:[
+    {t:'Uso', exp:'Callback deve retornar boolean.', code:'const nums = [1,2,3,4,5];\nconst pares = nums.filter(n => n % 2 === 0);\nconsole.log(pares); // [2,4]', ctx:'Útil para remover elementos indesejados.'},
+  ]},
+  {id:'array-reduce', e:'📊', n:'Array.reduce()', g:'📋 Arrays', tags:['reduce','acumulador'], desc:'Reduz array a um único valor.', subs:[
+    {t:'Uso', exp:'Acumulador e valor atual.', code:'const nums = [1,2,3,4];\nconst soma = nums.reduce((acc, n) => acc + n, 0);\nconsole.log(soma); // 10\nconst max = nums.reduce((a,b) => Math.max(a,b));\nconsole.log(max); // 4', ctx:'Pode implementar map/filter com reduce.'},
+  ]},
+  {id:'array-find', e:'🔎', n:'Array.find() e findIndex()', g:'📋 Arrays', tags:['find','findIndex','busca'], desc:'Encontra primeiro elemento que satisfaz condição.', subs:[
+    {t:'find', exp:'Retorna o elemento (ou undefined).', code:'const users = [{id:1,nome:"Ana"},{id:2,nome:"João"}];\nconst user = users.find(u => u.id === 2);\nconsole.log(user?.nome); // "João"', ctx:'findIndex retorna o índice (-1 se não encontrar).'},
+  ]},
+  {id:'array-some', e:'✅', n:'Array.some() e every()', g:'📋 Arrays', tags:['some','every','teste'], desc:'Testam se algum/todo elemento satisfaz condição.', subs:[
+    {t:'some', exp:'Retorna true se algum passar.', code:'const nums = [1,2,3];\nconsole.log(nums.some(n => n > 2)); // true\nconsole.log(nums.every(n => n > 0)); // true', ctx:'Parada antecipada quando condição é satisfeita/insatisfeita.'},
+  ]},
+  {id:'array-flat', e:'📄', n:'Array.flat() e flatMap()', g:'📋 Arrays', tags:['flat','flatMap','achatar'], desc:'Achata arrays aninhados.', subs:[
+    {t:'flat', exp:'Remove níveis de aninhamento.', code:'const nested = [1,[2,[3,4]]];\nconsole.log(nested.flat());    // [1,2,[3,4]]\nconsole.log(nested.flat(2));   // [1,2,3,4]', ctx:'flatMap = map seguido de flat(1).'},
+  ]},
+  {id:'array-sort', e:'🔃', n:'Array.sort()', g:'📋 Arrays', tags:['sort','ordenação'], desc:'Ordena array in-place.', subs:[
+    {t:'Uso', exp:'Função de comparação.', code:'const nums = [3,1,4,2];\nnums.sort((a,b) => a - b); // [1,2,3,4]\nnums.sort((a,b) => b - a); // [4,3,2,1]\nconst words = ["casa","abacaxi","bola"];\nwords.sort(); // ordenação lexicográfica', ctx:'Sem função de comparação, ordena como strings.'},
+  ]},
+  {id:'obj-basico', e:'📦', n:'Objetos - Básico', g:'📦 Objetos', tags:['objeto','propriedade','chave-valor'], desc:'Coleção de pares chave-valor.', subs:[
+    {t:'Criação e acesso', exp:'Notação literal ou new Object().', code:'const pessoa = {\n  nome: "João",\n  idade: 30,\n  "chave com espaço": 42\n};\nconsole.log(pessoa.nome);           // "João"\nconsole.log(pessoa["idade"]);        // 30\nconsole.log(pessoa["chave com espaço"]); // 42\npessoa.email = "joao@email.com";     // adiciona', ctx:'Chaves são strings ou Symbols.'},
+  ]},
+  {id:'obj-metodos', e:'🔧', n:'Object.keys/values/entries', g:'📦 Objetos', tags:['keys','values','entries','enumeração'], desc:'Métodos estáticos para iterar sobre objetos.', subs:[
+    {t:'Uso', exp:'Retornam arrays.', code:'const obj = { a:1, b:2, c:3 };\nconsole.log(Object.keys(obj));   // ["a","b","c"]\nconsole.log(Object.values(obj)); // [1,2,3]\nconsole.log(Object.entries(obj)); // [["a",1],["b",2],["c",3]]\n\nfor (const [chave, valor] of Object.entries(obj)) {\n  console.log(`${chave}: ${valor}`);\n}', ctx:'Úteis para iterar sobre objetos com for-of.'},
+  ]},
+  {id:'obj-spread', e:'💫', n:'Spread em Objetos', g:'📦 Objetos', tags:['spread','objeto','cópia'], desc:'Espalha propriedades de um objeto.', subs:[
+    {t:'Uso', exp:'Cria shallow copy ou mescla objetos.', code:'const original = { a:1, b:2 };\nconst copia = { ...original };\nconst mesclado = { ...original, c:3, b:99 };\nconsole.log(mesclado); // { a:1, b:99, c:3 }', ctx:'Propriedades duplicadas são sobrescritas pela última.'},
+  ]},
+  {id:'destr-obj', e:'📤', n:'Desestruturação de Objeto', g:'📦 Objetos', tags:['destructuring','objeto','extração'], desc:'Extrai valores de objetos em variáveis.', subs:[
+    {t:'Sintaxe', exp:'`const { prop } = obj`', code:'const user = { nome: "Ana", idade: 25, email: "ana@mail.com" };\nconst { nome, idade } = user;\nconsole.log(nome, idade); // "Ana" 25\n\nconst { email: endereco } = user;\nconsole.log(endereco); // "ana@mail.com"\n\nconst { cidade = "São Paulo" } = user;\nconsole.log(cidade); // "São Paulo" (valor padrão)', ctx:'Pode usar em parâmetros de função.'},
+  ]},
+  {id:'prototype', e:'🧬', n:'Prototype e Herança', g:'📦 Objetos', tags:['prototype','herança','__proto__'], desc:'Mecanismo de herança de JavaScript.', subs:[
+    {t:'Cadeia de protótipos', exp:'Objetos herdam de outros objetos.', code:'const animal = { tipo: "mamífero" };\nconst cachorro = { nome: "Rex" };\ncachorro.__proto__ = animal;\nconsole.log(cachorro.tipo); // "mamífero" (herdado)\n\n// Constructor function\nfunction Pessoa(nome) { this.nome = nome; }\nPessoa.prototype.falar = function() { console.log(`Olá, ${this.nome}`); };\nconst p = new Pessoa("João");\np.falar();', ctx:'Classes em ES6 são açúcar sintático sobre prototypes.'},
+  ]},
+  {id:'class-basic', e:'🏛️', n:'Classes - Básico', g:'🏛️ Classes', tags:['class','constructor','método'], desc:'Sintaxe moderna para criação de objetos e herança.', subs:[
+    {t:'Declaração', exp:'`class Nome { constructor() { } metodo() { } }`', code:'class Animal {\n  constructor(nome) {\n    this.nome = nome;\n  }\n  falar() {\n    console.log(`${this.nome} faz barulho`);\n  }\n}\nconst gato = new Animal("Mimi");\ngato.falar();', ctx:'Classes são funções especiais.'},
+  ]},
+  {id:'heranca', e:'👶', n:'Herança (extends)', g:'🏛️ Classes', tags:['extends','super','herança'], desc:'Cria subclasse que herda de superclasse.', subs:[
+    {t:'Uso', exp:'`class Filha extends Pai`', code:'class Animal {\n  constructor(nome) { this.nome = nome; }\n  falar() { console.log(`${this.nome} faz som`); }\n}\nclass Cachorro extends Animal {\n  falar() {\n    console.log(`${this.nome} late`);\n  }\n}\nconst rex = new Cachorro("Rex");\nrex.falar(); // "Rex late"', ctx:'Use `super()` no construtor da classe filha.'},
+  ]},
+  {id:'static', e:'🔒', n:'Métodos Estáticos', g:'🏛️ Classes', tags:['static','método estático','classe'], desc:'Métodos chamados na classe, não nas instâncias.', subs:[
+    {t:'Declaração', exp:'`static metodo()`', code:'class MathUtils {\n  static soma(a,b) { return a + b; }\n  static PI = 3.14159;\n}\nconsole.log(MathUtils.soma(2,3)); // 5\nconsole.log(MathUtils.PI); // 3.14159\nconst m = new MathUtils();\n// m.soma() não funciona', ctx:'Útil para funções utilitárias.'},
+  ]},
+  {id:'getset', e:'🎛️', n:'Getters e Setters', g:'🏛️ Classes', tags:['get','set','propriedade'], desc:'Controlam acesso a propriedades.', subs:[
+    {t:'Uso', exp:'`get prop()`, `set prop(valor)`', code:'class Pessoa {\n  constructor(nome) { this._nome = nome; }\n  get nome() { return this._nome.toUpperCase(); }\n  set nome(valor) { this._nome = valor.trim(); }\n}\nconst p = new Pessoa("  João  ");\nconsole.log(p.nome); // "JOÃO" (get)\np.nome = "  Maria  ";\nconsole.log(p.nome); // "MARIA" (set aplicou trim)', ctx:'Permite lógica ao acessar/modificar propriedades.'},
+  ]},
+  {id:'private', e:'🔐', n:'Campos Privados (#)', g:'🏛️ Classes', tags:['private','#','privado'], desc:'Campos acessíveis apenas dentro da classe.', subs:[
+    {t:'Declaração', exp:'`#campo`', code:'class Conta {\n  #saldo = 0;\n  constructor(nome) { this.nome = nome; }\n  depositar(valor) { this.#saldo += valor; }\n  get saldo() { return this.#saldo; }\n}\nconst c = new Conta("João");\nc.depositar(100);\nconsole.log(c.saldo); // 100\n// console.log(c.#saldo); // SyntaxError', ctx:'Privacidade real, não apenas convenção.'},
+  ]},
+  {id:'promises', e:'🤝', n:'Promises', g:'⏳ Assíncrono', tags:['promise','then','catch','resolve','reject'], desc:'Objeto que representa conclusão/fracasso de operação assíncrona.', subs:[
+    {t:'Criação e consumo', exp:'`new Promise((resolve, reject) => { })`', code:'const fetchData = () => new Promise((resolve, reject) => {\n  setTimeout(() => resolve("Dados carregados"), 1000);\n});\nfetchData()\n  .then(data => console.log(data))\n  .catch(err => console.error(err))\n  .finally(() => console.log("fim"));', ctx:'Estados: pending, fulfilled, rejected.'},
+  ]},
+  {id:'async-await', e:'⏳', n:'Async / Await', g:'⏳ Assíncrono', tags:['async','await','assíncrono'], desc:'Açúcar sintático para Promises.', subs:[
+    {t:'Uso', exp:'`async` função, `await` promise.', code:'async function buscar() {\n  try {\n    const data = await fetchData();\n    console.log(data);\n  } catch (err) {\n    console.error(err);\n  }\n}\nbuscar();', ctx:'Torna código assíncrono parecido com síncrono.'},
+  ]},
+  {id:'promise-all', e:'🔀', n:'Promise.all e allSettled', g:'⏳ Assíncrono', tags:['Promise.all','Promise.allSettled','múltiplas promises'], desc:'Aguardam múltiplas promises simultaneamente.', subs:[
+    {t:'Promise.all', exp:'Rejeita se qualquer uma rejeitar.', code:'const p1 = Promise.resolve(1);\nconst p2 = Promise.resolve(2);\nPromise.all([p1, p2]).then(values => console.log(values)); // [1,2]', ctx:'Útil para operações paralelas.'},
+    {t:'Promise.allSettled', exp:'Aguarda todas, independente de rejeição.', code:'Promise.allSettled([\n  Promise.resolve(1),\n  Promise.reject("erro")\n]).then(results => console.log(results));', ctx:'Retorna status e valor/razão de cada.'},
+  ]},
+  {id:'fetch', e:'🌐', n:'Fetch API', g:'⏳ Assíncrono', tags:['fetch','api','http'], desc:'Faz requisições HTTP assíncronas.', subs:[
+    {t:'Uso básico', exp:'`fetch(url)` retorna Promise.', code:'async function getUsers() {\n  try {\n    const res = await fetch("https://api.example.com/users");\n    if (!res.ok) throw new Error(`HTTP ${res.status}`);\n    const data = await res.json();\n    console.log(data);\n  } catch (err) {\n    console.error(err);\n  }\n}', ctx:'Resposta precisa ser convertida com .json() ou .text().'},
+  ]},
+  {id:'try-catch', e:'🛡️', n:'Try / Catch / Finally', g:'⏳ Assíncrono', tags:['try','catch','finally','erro'], desc:'Captura e trata exceções.', subs:[
+    {t:'Estrutura', exp:'Bloco try, catch com erro, finally sempre executa.', code:'try {\n  const data = JSON.parse("texto inválido");\n} catch (err) {\n  console.error("Erro:", err.message);\n} finally {\n  console.log("Sempre executa");\n}', ctx:'Útil para operações que podem lançar erros (JSON.parse, fetch).'},
+  ]},
+  {id:'template-lit', e:'📝', n:'Template Literals', g:'✨ ES6+ Moderno', tags:['template','literals','${}'], desc:'Strings com interpolação e múltiplas linhas.', subs:[
+    {t:'Uso', exp:'Delimitadas por crases `` ` ``.', code:'const nome = "Ana";\nconst idade = 25;\nconst msg = `Olá ${nome}, você tem ${idade} anos.`;\nconsole.log(msg);\nconst html = `\n  <div>\n    <h1>${nome}</h1>\n  </div>\n`;', ctx:'Podem conter expressões JavaScript dentro de `${}`.'},
+  ]},
+  {id:'symbol', e:'🔣', n:'Symbol', g:'✨ ES6+ Moderno', tags:['symbol','único','chave'], desc:'Tipo primitivo único e imutável.', subs:[
+    {t:'Criação', exp:'`Symbol()` garante unicidade.', code:'const s1 = Symbol("id");\nconst s2 = Symbol("id");\nconsole.log(s1 === s2); // false\nconst obj = { [s1]: 123 };\nconsole.log(obj[s1]); // 123', ctx:'Útil para propriedades privadas ou evitar colisões.'},
+  ]},
+  {id:'generators', e:'⚙️', n:'Generators', g:'✨ ES6+ Moderno', tags:['generator','function*','yield'], desc:'Funções que podem pausar e retomar execução.', subs:[
+    {t:'Uso', exp:'`function*` e `yield`.', code:'function* contador() {\n  let i = 0;\n  while(true) { yield i++; }\n}\nconst gen = contador();\nconsole.log(gen.next().value); // 0\nconsole.log(gen.next().value); // 1', ctx:'Útil para sequências infinitas e iterações customizadas.'},
+  ]},
+  {id:'proxy', e:'🪞', n:'Proxy e Reflect', g:'✨ ES6+ Moderno', tags:['proxy','reflect','metaprogramação'], desc:'Intercepta operações em objetos.', subs:[
+    {t:'Proxy', exp:'Define traps (get, set, etc).', code:'const alvo = { nome: "João" };\nconst handler = {\n  get(obj, prop) {\n    return prop in obj ? obj[prop] : "Propriedade inexistente";\n  }\n};\nconst proxy = new Proxy(alvo, handler);\nconsole.log(proxy.nome); // "João"\nconsole.log(proxy.idade); // "Propriedade inexistente"', ctx:'Usado para validação, logging, etc.'},
+  ]},
+  {id:'weakmap', e:'🗺️', n:'Map, Set, WeakMap, WeakSet', g:'✨ ES6+ Moderno', tags:['Map','Set','WeakMap','WeakSet'], desc:'Coleções com chaves/valores.', subs:[
+    {t:'Map', exp:'Pares chave-valor, chaves podem ser qualquer tipo.', code:'const map = new Map();\nmap.set("nome", "Ana");\nmap.set(1, "número");\nconsole.log(map.get("nome")); // "Ana"', ctx:'Mantém ordem de inserção.'},
+    {t:'Set', exp:'Valores únicos.', code:'const set = new Set([1,2,2,3]);\nconsole.log(set.size); // 3\nset.add(4);', ctx:'Remove duplicatas automaticamente.'},
+    {t:'WeakMap', exp:'Chaves objetos, sem impedir garbage collection.', code:'let obj = {};\nconst wm = new WeakMap();\nwm.set(obj, "dado");\nobj = null; // dado pode ser coletado', ctx:'Útil para dados auxiliares sem vazamento de memória.'},
+  ]},
+  {id:'seletores', e:'🎯', n:'Seletores DOM', g:'🌐 DOM e Eventos', tags:['DOM','seletores','querySelector'], desc:'Métodos para selecionar elementos no DOM.', subs:[
+    {t:'Principais seletores', exp:'getElementById, querySelector, etc.', code:'const div = document.getElementById("minhaDiv");\nconst primeiroItem = document.querySelector(".item");\nconst todosItems = document.querySelectorAll(".item");\nconst porClasse = document.getElementsByClassName("classe");', ctx:'querySelector usa seletores CSS.'},
+  ]},
+  {id:'manipulacao', e:'✏️', n:'Manipulação do DOM', g:'🌐 DOM e Eventos', tags:['DOM','manipulação','innerHTML','textContent'], desc:'Alterar conteúdo, atributos e estrutura do DOM.', subs:[
+    {t:'Alteração', exp:'textContent, innerHTML, setAttribute.', code:'const el = document.getElementById("meuElemento");\nel.textContent = "Novo texto";\nel.innerHTML = "<strong>HTML</strong>";\nel.setAttribute("data-id", "123");\nel.classList.add("ativo");', ctx:'Prefira textContent para texto puro (mais seguro).'},
+  ]},
+  {id:'eventos', e:'🖱️', n:'Eventos e Listeners', g:'🌐 DOM e Eventos', tags:['eventos','addEventListener','click'], desc:'Reagem a interações do usuário.', subs:[
+    {t:'Adicionar eventos', exp:'`addEventListener`', code:'const btn = document.querySelector("button");\nfunction handleClick(event) {\n  console.log("Clicou!", event);\n}\nbtn.addEventListener("click", handleClick);\n// remover: btn.removeEventListener("click", handleClick);', ctx:'Vários listeners podem ser adicionados ao mesmo evento.'},
+  ]},
+  {id:'event-deleg', e:'📡', n:'Event Delegation', g:'🌐 DOM e Eventos', tags:['delegação','eventos','bubbling'], desc:'Usar um listener no pai para elementos filhos dinâmicos.', subs:[
+    {t:'Implementação', exp:'Aproveita o bubbling de eventos.', code:'document.querySelector("#lista").addEventListener("click", (e) => {\n  if (e.target && e.target.matches(".item")) {\n    console.log("Item clicado:", e.target.textContent);\n  }\n});', ctx:'Eficiente para muitos elementos ou elementos dinâmicos.'},
+  ]},
+  {id:'regex', e:'🔍', n:'Expressões Regulares', g:'🔧 Utilitários', tags:['regex','RegExp','padrão'], desc:'Padrões para busca e substituição em strings.', subs:[
+    {t:'Uso', exp:'`/padrão/` ou `new RegExp()`', code:'const texto = "JavaScript é incrível";\nconsole.log(/Java/.test(texto)); // true\nconsole.log(texto.match(/a/g));  // ["a","a"]\nconsole.log(texto.replace(/\\s/g, "-")); // "JavaScript-é-incrível"\nconst regex = new RegExp("\\\\d+", "g");\nconsole.log("123abc".match(regex)); // ["123"]', ctx:'Flags: g (global), i (case-insensitive), m (multiline).'},
+  ]},
+  {id:'json', e:'📄', n:'JSON - parse e stringify', g:'🔧 Utilitários', tags:['JSON','parse','stringify'], desc:'Formato leve de troca de dados.', subs:[
+    {t:'Conversão', exp:'`JSON.parse()` e `JSON.stringify()`.', code:'const obj = { nome: "Ana", idade: 30 };\nconst jsonStr = JSON.stringify(obj);\nconsole.log(jsonStr); // "{\"nome\":\"Ana\",\"idade\":30}"\nconst obj2 = JSON.parse(jsonStr);\nconsole.log(obj2.nome); // "Ana"', ctx:'Não suporta funções, undefined, Symbols.'},
+  ]},
+  {id:'date', e:'📅', n:'Date e Datas', g:'🔧 Utilitários', tags:['Date','data','hora'], desc:'Trabalha com datas e horas.', subs:[
+    {t:'Criação e métodos', exp:'`new Date()`, getters, setters.', code:'const agora = new Date();\nconsole.log(agora.getFullYear());\nconsole.log(agora.getMonth()); // 0-11\nconsole.log(agora.getDate());   // dia do mês\nconst data = new Date("2024-01-01");\nconsole.log(data.toLocaleDateString("pt-BR"));', ctx:'Meses começam em 0 (janeiro = 0).'},
+  ]},
+  {id:'error-types', e:'⚠️', n:'Tipos de Erro', g:'🔧 Utilitários', tags:['Error','SyntaxError','TypeError'], desc:'Diferentes tipos de erro em JS.', subs:[
+    {t:'Erros comuns', exp:'SyntaxError, ReferenceError, TypeError.', code:'try {\n  // SyntaxError: eval("a b");\n  // ReferenceError: x não definido\n  // TypeError: null.falar();\n  throw new Error("Mensagem personalizada");\n} catch (err) {\n  console.log(err.name, err.message);\n}', ctx:'Use `instanceof` para identificar tipo específico.'},
+  ]},
+  {id:'modules', e:'📦', n:'Módulos (import/export)', g:'🔧 Utilitários', tags:['module','import','export','ES6'], desc:'Organização de código em arquivos separados.', subs:[
+    {t:'Sintaxe', exp:'`export` e `import`.', code:'// math.js\nexport const soma = (a,b) => a+b;\nexport default function multiplicar(a,b) { return a*b; }\n\n// main.js\nimport multiplicar, { soma } from "./math.js";\nconsole.log(soma(2,3)); // 5\nconsole.log(multiplicar(2,3)); // 6', ctx:'Use `<script type="module">` no HTML.'},
+  ]},
+  {id:'localStorage', e:'💾', n:'localStorage e sessionStorage', g:'🔧 Utilitários', tags:['localStorage','sessionStorage','storage'], desc:'Armazenamento persistente no navegador.', subs:[
+    {t:'API', exp:'setItem, getItem, removeItem.', code:'localStorage.setItem("chave", "valor");\nconst valor = localStorage.getItem("chave");\nlocalStorage.removeItem("chave");\n// sessionStorage é similar, mas limpo ao fechar aba\nsessionStorage.setItem("temp", "dados");', ctx:'Dados são strings (use JSON.stringify/parse para objetos).'},
+  ]},
+  {id:'busca', e:'🔍', n:'Algoritmos de Busca', g:'🧮 Algoritmos', tags:['busca','linear','binária'], desc:'Encontrar elemento em coleção.', subs:[
+    {t:'Busca linear', exp:'O(n) — percorre todos.', code:'function buscaLinear(arr, alvo) {\n  for (let i = 0; i < arr.length; i++) {\n    if (arr[i] === alvo) return i;\n  }\n  return -1;\n}', ctx:'Funciona para arrays não ordenados.'},
+    {t:'Busca binária', exp:'O(log n) — requer array ordenado.', code:'function buscaBinaria(arr, alvo) {\n  let esq = 0, dir = arr.length-1;\n  while (esq <= dir) {\n    const meio = Math.floor((esq+dir)/2);\n    if (arr[meio] === alvo) return meio;\n    if (arr[meio] < alvo) esq = meio+1;\n    else dir = meio-1;\n  }\n  return -1;\n}', ctx:'Muito mais rápido para arrays grandes ordenados.'},
+  ]},
+  {id:'ordenacao', e:'📊', n:'Algoritmos de Ordenação', g:'🧮 Algoritmos', tags:['sort','bubble','quick'], desc:'Ordenar elementos de um array.', subs:[
+    {t:'Bubble Sort', exp:'O(n²) — simples, ineficiente.', code:'function bubbleSort(arr) {\n  for (let i = 0; i < arr.length-1; i++) {\n    for (let j = 0; j < arr.length-1-i; j++) {\n      if (arr[j] > arr[j+1]) [arr[j], arr[j+1]] = [arr[j+1], arr[j]];\n    }\n  }\n  return arr;\n}', ctx:'Apenas para aprendizado.'},
+    {t:'Quick Sort', exp:'O(n log n) médio — divide e conquista.', code:'function quickSort(arr) {\n  if (arr.length <= 1) return arr;\n  const pivot = arr[0];\n  const left = [], right = [];\n  for (let i = 1; i < arr.length; i++) {\n    arr[i] < pivot ? left.push(arr[i]) : right.push(arr[i]);\n  }\n  return [...quickSort(left), pivot, ...quickSort(right)];\n}', ctx:'Implementação recursiva clássica.'},
+  ]},
+  {id:'pilha-fila', e:'📚', n:'Pilha e Fila', g:'🧮 Algoritmos', tags:['pilha','fila','stack','queue'], desc:'Estruturas de dados lineares.', subs:[
+    {t:'Pilha (Stack)', exp:'LIFO (Last In, First Out).', code:'class Pilha {\n  constructor() { this.items = []; }\n  push(el) { this.items.push(el); }\n  pop() { return this.items.pop(); }\n  peek() { return this.items[this.items.length-1]; }\n}', ctx:'Usa push/pop do array.'},
+    {t:'Fila (Queue)', exp:'FIFO (First In, First Out).', code:'class Fila {\n  constructor() { this.items = []; }\n  enqueue(el) { this.items.push(el); }\n  dequeue() { return this.items.shift(); }\n  front() { return this.items[0]; }\n}', ctx:'Shift é O(n); para melhor performance, use dois ponteiros.'},
+  ]},
+  {id:'dinamica', e:'⚡', n:'Programação Dinâmica', g:'🧮 Algoritmos', tags:['DP','memoization','otimização'], desc:'Otimização recursiva com subproblemas sobrepostos.', subs:[
+    {t:'Fibonacci com memoização', exp:'Memoization cacheia resultados.', code:'const memo = {};\nfunction fib(n) {\n  if (n <= 1) return n;\n  if (memo[n]) return memo[n];\n  memo[n] = fib(n-1) + fib(n-2);\n  return memo[n];\n}\nconsole.log(fib(40)); // rápido', ctx:'Transforma O(2^n) em O(n).'},
+  ]},
+];
+
+// APP STATE (restante do código idêntico ao anterior)
+const state = { topicId: null, nivel: 'auto', current: null, history: [], histIdx: -1, attempts: 0, loading: false, session: { total:0, certas:0, erradas:0 } };
+const ui = { topic: { groupsOpen: {} }, hints: { open: true }, study: { open: true }, estudos: { active: null, studyQuestion: null, chatHeight: 190 } };
+let monacoEditor = null;
+let monacoInitializing = false;
+let monacoInitCallbacks = [];
+let _aiChatHistory = [];
+
+function initMonaco(cb) {
+  if (monacoEditor) {
+    if (cb) cb();
+    return;
+  }
+  if (monacoInitializing) {
+    if (cb) monacoInitCallbacks.push(cb);
+    return;
+  }
+
+  monacoInitializing = true;
+  if (cb) monacoInitCallbacks.push(cb);
+
+  require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+  require(['vs/editor/editor.main'], function () {
+    monaco.editor.defineTheme('jsmaster-dark', { base: 'vs-dark', inherit: true, rules: [{ token: 'comment', foreground: '4e5468', fontStyle: 'italic' }, { token: 'string', foreground: 'c3e88d' }, { token: 'number', foreground: 'f78c6c' }, { token: 'keyword', foreground: 'c792ea' }, { token: 'identifier', foreground: 'd8dce8' }, { token: 'delimiter', foreground: '89ddff' }], colors: { 'editor.background': '#0a0b11', 'editor.foreground': '#d8dce8', 'editor.lineHighlightBackground': '#13141e', 'editorGutter.background': '#0a0b11', 'editor.selectionBackground': '#264f7840', 'editorCursor.foreground': '#5c7cfa', 'editorIndentGuide.background': '#1e2230' } });
+    monacoEditor = monaco.editor.create(document.getElementById('monacoWrapper'), { value: '', language: 'javascript', theme: 'jsmaster-dark', fontSize: 14, fontFamily: "'IBM Plex Mono', 'JetBrains Mono', monospace", fontLigatures: true, lineNumbers: 'on', minimap: { enabled: false }, scrollbar: { verticalScrollbarSize: 4, horizontalScrollbarSize: 4 }, padding: { top: 12, bottom: 12 }, overviewRulerLanes: 0, renderLineHighlight: 'gutter', cursorBlinking: 'smooth', smoothScrolling: true, automaticLayout: true, tabSize: 2, wordWrap: 'on', glyphMargin: false, folding: false });
+    monacoEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => verify());
+
+    monacoInitializing = false;
+    while (monacoInitCallbacks.length) {
+      const fn = monacoInitCallbacks.shift();
+      if (fn) fn();
+    }
+  });
+}
+
+function renderTopics(filter = '') {
+  const list = document.getElementById('topicsList');
+  list.innerHTML = '';
+  const f = filter.toLowerCase().trim();
+  TOPICS.forEach((grp, gi) => {
+    const key = 'g' + gi;
+    if (ui.topic.groupsOpen[key] === undefined) ui.topic.groupsOpen[key] = true;
+    const items = grp.itens.filter(t => !f || t.n.toLowerCase().includes(f) || t.id.includes(f));
+    if (!items.length) return;
+    const hdr = document.createElement('div');
+    hdr.className = 'grp-hdr';
+    hdr.innerHTML = `<span class="grp-lbl">${grp.grupo}</span><span class="grp-arrow ${ui.topic.groupsOpen[key] ? 'open' : ''}" id="ga${gi}">▶</span>`;
+    hdr.onclick = () => { ui.topic.groupsOpen[key] = !ui.topic.groupsOpen[key]; document.getElementById('ga' + gi)?.classList.toggle('open', ui.topic.groupsOpen[key]); document.getElementById('gw' + gi)?.classList.toggle('closed', !ui.topic.groupsOpen[key]); };
+    list.appendChild(hdr);
+    const wrap = document.createElement('div');
+    wrap.className = 'grp-items' + (ui.topic.groupsOpen[key] ? '' : ' closed');
+    wrap.id = 'gw' + gi;
+    items.forEach(t => { const el = document.createElement('div'); el.className = 'topic-item' + (state.topicId === t.id ? ' active' : ''); el.innerHTML = `<span>${t.e}</span><span>${t.n}</span>`; el.onclick = () => selectTopic(t); wrap.appendChild(el); });
+    list.appendChild(wrap);
+  });
+}
+function filterTopics(val) { renderTopics(val); }
+function selectTopic(t) { state.topicId = t.id; renderTopics(document.getElementById('topicSearch').value); document.getElementById('topicBadge').textContent = t.e + ' ' + t.n; document.getElementById('btnNew').disabled = false; if (!state.current) showEmpty(`${t.e} <strong>${t.n}</strong> selecionado!<br>Clique em <strong>✨ Nova</strong> para gerar um exercício.`); }
+function getTopicName() { for (const g of TOPICS) { const t = g.itens.find(i => i.id === state.topicId); if (t) return t.n; } return state.topicId || 'JavaScript'; }
+function getTopicById(id) { for (const g of TOPICS) { const t = g.itens.find(i => i.id === id); if (t) return t; } return null; }
+function setNivel(n) { state.nivel = n; document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active')); document.querySelector(`[data-nivel="${n}"]`).classList.add('active'); const map = { auto: ['badge-auto', '🎲 Auto'], facil: ['badge-facil', '🟢 Fácil'], medio: ['badge-medio', '🟡 Médio'], dificil: ['badge-dificil', '🔴 Difícil'] }; const [cls, label] = map[n]; const b = document.getElementById('levelBadge'); b.className = `badge ${cls}`; b.textContent = label; }
+function showEmpty(msg = '') { document.getElementById('stateEmpty').classList.add('visible'); document.getElementById('stateLoading').classList.remove('visible'); document.getElementById('questionWrap').classList.remove('show'); if (msg) document.getElementById('stateEmpty').innerHTML = `<div class="state-icon">🧠</div><div class="state-text">${msg}</div>`; }
+function showLoading(msg = 'Gerando questão...') { document.getElementById('stateEmpty').classList.remove('visible'); document.getElementById('stateLoading').classList.add('visible'); document.getElementById('questionWrap').classList.remove('show'); document.getElementById('loadingMsg').textContent = msg; }
+function showQuestion() { document.getElementById('stateEmpty').classList.remove('visible'); document.getElementById('stateLoading').classList.remove('visible'); document.getElementById('questionWrap').classList.add('show'); }
+function toggleStudy() { ui.study.open = !ui.study.open; document.getElementById('studyBody').classList.toggle('collapsed', !ui.study.open); const icon = document.getElementById('studyToggleIcon'); if (icon) { icon.classList.toggle('open', ui.study.open); icon.textContent = ui.study.open ? '▼' : '▶'; } }
+function renderStudyMaterial(material, topicName) { const section = document.getElementById('studySection'); const inner = document.getElementById('studyBodyInner'); const label = document.getElementById('studyTopicLabel'); if (!material || typeof material !== 'object') { section.style.display = 'none'; return; } label.textContent = `— ${topicName}`; let html = ''; if (material.resumo) html += `<div class="study-summary"><span>💡</span><span>${escH(material.resumo)}</span></div>`; if (material.explicacao) html += `<div class="study-card"><div class="study-card-label" style="color:var(--green)">📖 Explicação</div><div class="study-card-text">${fmtText(material.explicacao)}</div></div>`; if (material.exemplos && material.exemplos.length) { const exHTML = material.exemplos.map(ex => `<div class="study-example-item">${escH(String(ex))}</div>`).join(''); html += `<div class="study-card"><div class="study-card-label" style="color:var(--blue)">🧪 Exemplos Práticos</div><div class="study-examples">${exHTML}</div></div>`; } if (material.erros_comuns && material.erros_comuns.length) { const errTags = material.erros_comuns.map(e => `<span class="study-tag err">⚠️ ${escH(String(e))}</span>`).join(''); html += `<div class="study-card"><div class="study-card-label" style="color:var(--red)">❌ Erros Comuns</div><div class="study-tags">${errTags}</div></div>`; } inner.innerHTML = html; section.style.display = 'block'; ui.study.open = true; document.getElementById('studyBody').classList.remove('collapsed'); const icon = document.getElementById('studyToggleIcon'); if (icon) { icon.classList.add('open'); icon.textContent = '▼'; } }
+async function newQuestion() { if (!state.topicId) { toast('Selecione um tópico primeiro!', 'err'); return; } if (state.loading) return; state.loading = true; state.attempts = 0; showLoading('Gerando questão e material de estudo com IA...'); document.getElementById('btnNew').disabled = true; hideFeedback(); const histEnunciados = state.history.map(h => (h.q?.enunciado || '').substring(0, 70)); try { const res = await fetch('/gerar-questao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topico: getTopicName(), nivel: state.nivel === 'auto' ? 'escolha o mais adequado' : state.nivel, historico: histEnunciados }) }); const data = await res.json(); if (!res.ok || data.error) throw new Error(data.error || 'Erro ao gerar questão'); state.current = data; state.history.push({ q: data, code: null, result: null, topicId: state.topicId, hints: [], ts: new Date().toISOString() }); state.histIdx = state.history.length - 1; updateNavBtns(); renderQuestion(data); saveLS(); } catch (err) { showEmpty(`<div style="font-size:14px">⚠️</div><div class="state-text" style="color:var(--red)"><strong>Erro ao gerar questão</strong><br>${escH(err.message)}</div>`); } finally { state.loading = false; document.getElementById('btnNew').disabled = false; } }
+function renderQuestion(q) { showQuestion(); document.getElementById('enunciadoText').innerHTML = fmtText(q.enunciado || ''); const ew = document.getElementById('exemploWrap'); if (q.exemplo) { document.getElementById('exemploText').textContent = q.exemplo; ew.style.display = 'block'; } else { ew.style.display = 'none'; } document.getElementById('conceptsRow').innerHTML = (q.conceitos || []).map(c => `<span class="concept-tag">${escH(c)}</span>`).join(''); if (q.nivel_detectado && state.nivel === 'auto') { const map = { facil: ['badge-facil', '🟢 Fácil'], medio: ['badge-medio', '🟡 Médio'], dificil: ['badge-dificil', '🔴 Difícil'] }; if (map[q.nivel_detectado]) { const [cls, label] = map[q.nivel_detectado]; const b = document.getElementById('levelBadge'); b.className = `badge ${cls}`; b.textContent = label; } } document.getElementById('qCounter').textContent = `Q${state.histIdx + 1} / ${state.history.length}`; renderStudyMaterial(q.material_estudo, getTopicName()); hideHints(); if (monacoEditor) monacoEditor.setValue(''); hideFeedback(); document.getElementById('btnVerify').disabled = false; document.getElementById('btnHint').disabled = false; if (!monacoEditor) initMonaco(() => monacoEditor.focus()); else monacoEditor.focus(); }
+function runSandbox(code) { const logs = []; const fake = { log: (...a) => logs.push(a.map(String).join(' ')), warn: (...a) => logs.push(a.map(String).join(' ')), error: (...a) => logs.push(a.map(String).join(' ')), info: (...a) => logs.push(a.map(String).join(' ')) }; let result = undefined, error = null; try { const fn = new Function('console', `return (function(){\n${code}\n})();`); result = fn(fake); } catch (e) { if (e instanceof SyntaxError) { error = e; } else { try { const fn2 = new Function('console', code); result = fn2(fake); } catch (e2) { error = e2; } } } return { logs, result, error }; }
+function hasValidCode(code) {
+  const trimmed = code.trim();
+  if (!trimmed) return false;
+  // Remove comentários de linha e bloco
+  const withoutComments = trimmed
+    .replace(/\/\/.*$/gm, '')  // comentários de linha
+    .replace(/\/\*[\s\S]*?\*\//g, '')  // comentários de bloco
+    .trim();
+  return withoutComments.length > 0;
+}
+
+async function verify() {
+  if (!monacoEditor) {
+    toast('Editor ainda carregando. Aguarde um momento.', 'err');
+    return;
+  }
+  const code = monacoEditor.getValue();
+  if (!hasValidCode(code)) {
+    toast('Escreva uma solução válida (não apenas comentários ou espaços) antes de verificar!', 'err');
+    return;
+  }
+  if (!state.current) {
+    toast('Nenhuma questão ativa.', 'err');
+    return;
+  }
+  if (state.loading) return;
+  state.loading = true;
+  state.attempts++;
+  document.getElementById('btnVerify').disabled = true;
+  const fb = document.getElementById('feedbackBox');
+  fb.className = 'feedback-box show';
+  fb.innerHTML = `<div style="padding:18px;display:flex;align-items:center;gap:11px;color:var(--text-dim)"><div class="spin" style="width:22px;height:22px;border-width:2px"></div><span style="font-style:italic;font-size:14px">Analisando sua solução com IA...</span></div>`;
+  const sandbox = runSandbox(code);
+  let execInfo = null;
+  if (!(sandbox.error instanceof SyntaxError)) {
+    execInfo = sandbox.error ? `ERRO DE RUNTIME: ${sandbox.error.message}` : `Código executou sem erros. Console: ${sandbox.logs.length ? sandbox.logs.join(' | ') : '(sem console.log)'}. Retorno: ${String(sandbox.result)}`;
+  }
+  try {
+    const res = await fetch('/verificar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enunciado: state.current.enunciado, codigo: code, topico: getTopicName(), contexto_execucao: execInfo })
+    });
+
+    let data;
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      data = await res.json();
+    } else {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status} - ${text}`);
+    }
+
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    if (data.error) throw new Error(data.error);
+    if (!data.correto && !sandbox.error) {
+      const hasSaida = sandbox.logs.length > 0 || sandbox.result !== undefined;
+      if (hasSaida) {
+        data._discordou = true;
+        if ((data.pontuacao || 0) < 50) data.pontuacao = 50;
+      }
+    }
+    const item = state.history[state.histIdx];
+    if (item) {
+      item.code = code;
+      item.result = data;
+    }
+    state.session.total++;
+    if (data.correto) {
+      state.session.certas++;
+      fireConfetti();
+    } else {
+      state.session.erradas++;
+    }
+    updateStats();
+    renderFeedback(data);
+    saveLS();
+  } catch (err) {
+    fb.className = 'feedback-box show';
+    fb.innerHTML = `<div style="padding:14px;color:var(--red)"><strong>❌ Erro:</strong> ${escH(err.message)}<br><small style="color:var(--muted)">Verifique se o Ollama está rodando na porta 11434.</small></div>`;
+  } finally {
+    state.loading = false;
+    document.getElementById('btnVerify').disabled = false;
+  }
+}
+function renderFeedback(data) { const ok = data.correto; const fb = document.getElementById('feedbackBox'); let html = `<div class="fb-hdr" style="background:${ok ? 'rgba(45,212,160,0.07)' : 'rgba(245,101,101,0.07)'}"><div class="fb-icon ${ok ? 'ok' : 'err'}">${ok ? '✓' : '✗'}</div><div class="fb-title ${ok ? 'ok' : 'err'}">${ok ? 'Correto ✅' : 'Não foi dessa vez'}</div><div class="fb-pts" style="color:${ok ? 'var(--green)' : 'var(--red)'}">${data.pontuacao ?? (ok ? 100 : 0)}pts</div></div><div class="fb-body">`; if (data.resumo) html += fbSec(ok ? 'ok' : 'err', '📋 Resumo', ok ? 'var(--green)' : 'var(--red)', fmtText(data.resumo)); if (data.o_que_fez_bem) html += fbSec('ok', '✅ O que fez bem', 'var(--green)', fmtText(data.o_que_fez_bem)); if (!ok && data.problemas) html += fbSec('err', '❌ Problemas encontrados', 'var(--red)', fmtText(data.problemas)); if (data.codigo_exemplo) html += fbSec('info', ok ? '💡 Referência' : '💡 Solução de referência', 'var(--blue)', `<pre>${escH(data.codigo_exemplo)}</pre>`); if (ok && data.solucoes_alternativas?.length) { const alts = data.solucoes_alternativas.map((s, i) => `<div class="fb-alt-item"><div class="fb-alt-label">Alternativa ${i + 1}</div><div class="fb-alt-code">${escH(String(s))}</div></div>`).join(''); html += fbSec('info', '🔀 Outras formas', 'var(--accent2)', `<div class="fb-alts">${alts}</div>`); } if (data.sugestao) html += fbSec('tip', '🚀 Próximo passo', 'var(--yellow)', fmtText(data.sugestao)); if (data._discordou) html += fbSec('warn', '⚠️ Nota', 'var(--orange)', '<p>Seu código executou sem erros. A IA pode ter avaliado o estilo ou completude. Se sua saída atende ao pedido, sua solução pode estar correta.</p>'); html += '</div>'; fb.className = 'feedback-box show'; fb.innerHTML = html; requestAnimationFrame(() => { fb.querySelectorAll('pre').forEach(el => { if (window.hljs && !el.classList.contains('hljs')) { el.className = 'language-javascript'; hljs.highlightElement(el); } }); }); }
+function fbSec(cls, title, color, body) { return `<div class="fb-sec ${cls}"><div class="fb-sec-title" style="color:${color}">${title}</div><div class="fb-sec-text">${body}</div></div>`; }
+function hideFeedback() { const fb = document.getElementById('feedbackBox'); fb.className = 'feedback-box'; fb.innerHTML = ''; }
+async function getHint() { if (!state.current || state.loading) return; state.loading = true; document.getElementById('btnHint').disabled = true; const item = state.history[state.histIdx]; if (!item.hints) item.hints = []; const idx = item.hints.length; item.hints.push({ text: '...', loading: true }); renderHints(item.hints); try { const res = await fetch('/dica', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enunciado: state.current.enunciado, codigo: monacoEditor ? monacoEditor.getValue() : '', tentativas: state.attempts }) }); const data = await res.json(); if (data.error) throw new Error(data.error); item.hints[idx] = { text: data.dica, loading: false }; renderHints(item.hints); saveLS(); } catch (err) { item.hints[idx] = { text: `Erro: ${err.message}`, loading: false, err: true }; renderHints(item.hints); } finally { state.loading = false; document.getElementById('btnHint').disabled = false; } }
+function renderHints(hints) { if (!hints || !hints.length) return; const panel = document.getElementById('hintsPanel'); const count = document.getElementById('hintsCount'); const content = document.getElementById('hintsContent'); panel.classList.add('show'); count.textContent = `(${hints.length})`; if (!ui.hints.open) { ui.hints.open = true; document.getElementById('hintsBody').classList.remove('collapsed'); document.getElementById('hintsChevron').classList.add('open'); document.getElementById('hintsChevron').textContent = '▼'; } content.innerHTML = hints.map((h, i) => `<div class="hint-item"><div class="hint-num">💡 Dica ${i + 1}${h.loading ? ' (carregando...)' : ''}</div><div>${h.loading ? '<em style="color:var(--muted)">Buscando dica...</em>' : fmtCode(h.text)}</div></div>`).join(''); requestAnimationFrame(() => { content.querySelectorAll('pre').forEach(el => { if (window.hljs && !el.classList.contains('hljs')) { el.className = 'language-javascript'; hljs.highlightElement(el); } }); }); }
+function hideHints() { document.getElementById('hintsPanel').classList.remove('show'); document.getElementById('hintsContent').innerHTML = ''; document.getElementById('hintsCount').textContent = ''; ui.hints.open = true; const body = document.getElementById('hintsBody'); const chevron = document.getElementById('hintsChevron'); body.classList.remove('collapsed'); chevron.classList.add('open'); chevron.textContent = '▼'; }
+function toggleHints() { ui.hints.open = !ui.hints.open; document.getElementById('hintsBody').classList.toggle('collapsed', !ui.hints.open); const chevron = document.getElementById('hintsChevron'); chevron.classList.toggle('open', ui.hints.open); chevron.textContent = ui.hints.open ? '▼' : '▶'; }
+function navHistory(dir) { const newIdx = state.histIdx + dir; if (newIdx < 0 || newIdx >= state.history.length) return; state.histIdx = newIdx; const item = state.history[newIdx]; state.current = item.q; state.attempts = item.result ? 1 : 0; renderQuestion(item.q); if (item.code && monacoEditor) monacoEditor.setValue(item.code); if (item.result) renderFeedback(item.result); if (item.hints?.length) renderHints(item.hints); updateNavBtns(); document.getElementById('qCounter').textContent = `Q${newIdx + 1} / ${state.history.length}`; }
+function updateNavBtns() { document.getElementById('btnPrev').disabled = (state.histIdx <= 0); document.getElementById('btnNext').disabled = (state.histIdx >= state.history.length - 1); }
+async function randomQuestion() { if (state.loading) return; const all = TOPICS.flatMap(g => g.itens); const t = all[Math.floor(Math.random() * all.length)]; selectTopic(t); await new Promise(r => setTimeout(r, 30)); await newQuestion(); }
+function clearEditor() { if (monacoEditor) monacoEditor.setValue(''); hideFeedback(); hideHints(); }
+function updateStats() { document.getElementById('statTotal').textContent = state.session.total; document.getElementById('statCertas').textContent = state.session.certas; document.getElementById('statErradas').textContent = state.session.erradas; }
+function escH(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function fmtText(text) { if (!text) return ''; let h = escH(text); h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); h = h.replace(/`([^`\n]+?)`/g, '<code>$1</code>'); h = h.split(/\n\n+/).map(p => p.trim() ? '<p style="margin-bottom:6px">' + p.replace(/\n/g, '<br>') + '</p>' : '').join(''); return h || escH(text); }
+function fmtCode(text) { if (!text) return ''; return text.split(/(```(?:javascript|js)?\n?[\s\S]*?```)/g).map(part => { const m = part.match(/^```(?:javascript|js)?\n?([\s\S]*?)```$/); if (m) return `<pre>${hlSimple(m[1].trim())}</pre>`; let h = escH(part); h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); h = h.replace(/`([^`\n]+?)`/g, '<code>$1</code>'); h = h.split(/\n\n+/).map(p => p.trim() ? '<p style="margin-bottom:5px">' + p.replace(/\n/g, '<br>') + '</p>' : '').join(''); return h; }).join(''); }
+function hlSimple(code) { code = String(code).replace(/<span\s+class=["']Comentario["']>/g, '').replace(/<span\s+class=["']hljs-string["']>/g, '').replace(/<span\s+class=["']hljs-keyword["']>/g, '').replace(/<span\s+class=["']hljs-number["']>/g, '').replace(/<\/span>/g, ''); let h = escH(code); h = h.replace(/(\/\/[^\n]*)/g, '<span >$1</span>'); h = h.replace(/(`(?:[^`\\]|\\.)*`)/g, '<span >$1</span>'); h = h.replace(/('[^'\\]*'|"[^"\\]*")/g, '<span >$1</span>'); const kws = 'const,let,var,function,return,if,else,for,while,do,class,new,this,super,extends,import,export,default,async,await,try,catch,finally,throw,typeof,instanceof,in,of,true,false,null,undefined,static,get,set,from,switch,case,break,continue'.split(','); kws.forEach(kw => { h = h.replace(new RegExp(`\\b(${kw})\\b(?![^<]*>)`, 'g'), '<span class="hljs-keyword">$1</span>'); }); h = h.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="hljs-number">$1</span>'); return h; }
+function openHistory() { renderHistoryList(); document.getElementById('historyDrawer').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
+function closeHistory() { document.getElementById('historyDrawer').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+function renderHistoryList() { const list = document.getElementById('drawerList'); if (!state.history.length) { list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:14px;padding:24px">Nenhuma questão ainda.</div>'; return; } list.innerHTML = [...state.history].reverse().map((item, ri) => { const i = state.history.length - 1 - ri; const t = item.topicId ? getTopicById(item.topicId) : null; const ok = item.result?.correto; return `<div class="history-item ${item.result ? (ok ? 'ok' : 'err') : ''}" onclick="jumpHistory(${i})"><div class="hi-topic">#${i + 1} · ${t ? t.e + ' ' + t.n : 'JavaScript'}</div><div class="hi-text">${escH((item.q?.enunciado || '').substring(0, 85))}...</div><div class="hi-meta"><span>${item.result ? (ok ? '✅ Correto' : '❌ Errado') : '⏳ Pendente'}</span>${item.result ? `<span>${item.result.pontuacao ?? 0}pts</span>` : ''}</div></div>`; }).join(''); }
+function jumpHistory(idx) { state.histIdx = idx; const item = state.history[idx]; state.current = item.q; state.attempts = item.result ? 1 : 0; if (item.topicId) state.topicId = item.topicId; renderQuestion(item.q); if (item.code && monacoEditor) monacoEditor.setValue(item.code); if (item.result) renderFeedback(item.result); if (item.hints?.length) renderHints(item.hints); updateNavBtns(); closeHistory(); }
+let _curTab = 'resumo';
+function openModal() { document.getElementById('modalOverlay').classList.add('open'); switchTab('resumo'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function switchTab(tab) { _curTab = tab; document.querySelectorAll('.modal-tab').forEach(b => b.classList.remove('active')); document.getElementById('tab' + tab[0].toUpperCase() + tab.slice(1)).classList.add('active'); tab === 'resumo' ? renderResumo() : renderRevisao(); }
+function renderResumo() { const { total, certas, erradas } = state.session; const taxa = total > 0 ? Math.round((certas / total) * 100) : 0; const pts = state.history.reduce((s, h) => s + (h.result?.pontuacao || 0), 0); const cor = taxa >= 70 ? 'var(--green)' : taxa >= 40 ? 'var(--yellow)' : 'var(--red)'; const byTopic = {}; state.history.forEach(h => { if (!h.topicId) return; const t = getTopicById(h.topicId); const k = t ? `${t.e} ${t.n}` : h.topicId; if (!byTopic[k]) byTopic[k] = { tot: 0, ok: 0 }; if (h.result) { byTopic[k].tot++; if (h.result.correto) byTopic[k].ok++; } }); const topicRows = Object.entries(byTopic).map(([k, d]) => { const tx = d.tot > 0 ? Math.round((d.ok / d.tot) * 100) : 0; const c = tx >= 70 ? 'var(--green)' : tx >= 40 ? 'var(--yellow)' : 'var(--red)'; return `<div style="padding:6px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:14px">${k}</span><span style="font-size:14px;font-weight:700;color:${c}">${d.ok}/${d.tot} (${tx}%)</span></div><div class="prog-wrap"><div class="prog-fill" style="width:${tx}%;background:${c}"></div></div></div>`; }).join(''); document.getElementById('modalBody').innerHTML = `<div class="resumo-grid"><div class="resumo-card"><div class="resumo-num" style="color:var(--yellow)">${state.history.length}</div><div class="resumo-lbl">Geradas</div></div><div class="resumo-card"><div class="resumo-num" style="color:var(--blue)">${total}</div><div class="resumo-lbl">Respondidas</div></div><div class="resumo-card"><div class="resumo-num" style="color:var(--green)">${certas}</div><div class="resumo-lbl">Acertos</div></div><div class="resumo-card"><div class="resumo-num" style="color:var(--red)">${erradas}</div><div class="resumo-lbl">Erros</div></div><div class="resumo-card"><div class="resumo-num" style="color:${cor}">${taxa}%</div><div class="resumo-lbl">Taxa</div></div><div class="resumo-card"><div class="resumo-num" style="color:var(--accent2)">${pts}</div><div class="resumo-lbl">Pontos</div></div></div><div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:11px"><div style="font-size:14px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Taxa de acerto</div><div class="prog-wrap" style="height:10px"><div class="prog-fill" style="width:${taxa}%;background:${cor}"></div></div><div style="text-align:right;font-size:14px;color:${cor};margin-top:3px;font-weight:700">${taxa}%</div></div>${Object.keys(byTopic).length ? `<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:11px"><div style="font-size:14px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:7px">Por tópico</div>${topicRows}</div>` : ''}`; }
+function renderRevisao() { const body = document.getElementById('modalBody'); if (!state.history.length) { body.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Nenhuma questão ainda.</div>'; return; } body.innerHTML = `<div class="revisao-list">${state.history.map((item, idx) => { const ok = item.result?.correto; const t = item.topicId ? getTopicById(item.topicId) : null; const topico = t ? `${t.e} ${t.n}` : 'JavaScript'; const status = !item.result ? 'pending' : ok ? 'ok' : 'err'; const icon = status === 'pending' ? '⏳' : ok ? '✓' : '✗'; let bodyH = ''; if (item.q?.enunciado) bodyH += `<div class="rev-bloco"><div class="rev-bloco-lbl" style="color:var(--accent2)">📝 Enunciado</div><p style="font-size:14px;line-height:1.65">${escH(item.q.enunciado)}</p></div>`; if (item.code) bodyH += `<div class="rev-bloco"><div class="rev-bloco-lbl" style="color:${ok ? 'var(--green)' : 'var(--red)'}">💻 Sua resposta</div><pre>${escH(item.code)}</pre></div>`; if (!ok && item.result?.codigo_exemplo) bodyH += `<div class="rev-bloco"><div class="rev-bloco-lbl" style="color:var(--blue)">💡 Solução</div><pre>${escH(item.result.codigo_exemplo)}</pre></div>`; if (item.result?.resumo) bodyH += `<div class="rev-bloco"><div class="rev-bloco-lbl" style="color:var(--muted)">📋 Avaliação</div><p style="font-size:14px">${escH(item.result.resumo)}</p></div>`; return `<div class="rev-item"><div class="rev-hdr" onclick="toggleRevItem(${idx})"><div class="rev-badge ${status !== 'pending' ? (ok ? 'ok' : 'err') : ''}">${icon}</div><div class="rev-info"><div class="rev-topic">#${idx + 1} · ${topico}</div><div class="rev-enunc">${escH((item.q?.enunciado || '').substring(0, 95))}</div></div><div class="rev-pts" style="color:${status === 'pending' ? 'var(--muted)' : ok ? 'var(--green)' : 'var(--red)'}">${status === 'pending' ? '—' : (item.result?.pontuacao ?? 0) + 'pts'}</div><div class="rev-tog" id="rt${idx}">▼</div></div><div class="rev-body" id="rb${idx}">${bodyH}<div style="padding-top:3px"><button onclick="jumpHistory(${idx});closeModal()" style="background:var(--accent);color:white;border:none;padding:4px 11px;border-radius:5px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer">Ir para questão</button></div></div></div>`; }).join('')}</div>`; }
+function toggleRevItem(idx) { document.getElementById(`rb${idx}`)?.classList.toggle('open'); const tog = document.getElementById(`rt${idx}`); if (tog) tog.textContent = tog.textContent === '▼' ? '▲' : '▼'; }
+async function generatePDF() { const btn = document.getElementById('btnPDF'); btn.disabled = true; btn.textContent = '⏳ Gerando...'; try { const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' }); const M = 15, PW = 180; let y = M; const agora = new Date().toLocaleString('pt-BR'); const chk = (n = 10) => { if (y + n > 286) { doc.addPage(); y = M; } }; const txt = (text, x, ry, { sz = 10, b = false, c = [200, 200, 220], mw = PW, al = 'left' } = {}) => { doc.setFontSize(sz); doc.setFont('helvetica', b ? 'bold' : 'normal'); doc.setTextColor(...c); const lines = doc.splitTextToSize(String(text), mw); doc.text(lines, x, ry, { align: al }); return lines.length * (sz * 0.37); }; doc.setFillColor(9, 9, 18); doc.rect(0, 0, 210, 38, 'F'); txt('JS Master AI', M, 16, { sz: 18, b: true, c: [92, 124, 250] }); txt('Relatório de Desempenho', M, 24, { sz: 10, c: [140, 140, 180] }); txt(agora, 210 - M, 24, { sz: 8, c: [100, 100, 140], al: 'right', mw: 80 }); y = 46; const { total, certas } = state.session; const taxa = total > 0 ? Math.round((certas / total) * 100) : 0; const pts = state.history.reduce((s, h) => s + (h.result?.pontuacao || 0), 0); [{ l: 'Geradas', val: state.history.length, c: [96, 165, 250] }, { l: 'Respondidas', val: total, c: [92, 124, 250] }, { l: 'Acertos', val: certas, c: [45, 212, 160] }, { l: 'Taxa', val: taxa + '%', c: taxa >= 70 ? [45, 212, 160] : taxa >= 40 ? [245, 200, 66] : [245, 101, 101] }, { l: 'Pontos', val: pts, c: [165, 148, 249] }].forEach((card, i) => { const cw = PW / 5, cx = M + i * cw; doc.setFillColor(20, 22, 32); doc.roundedRect(cx, y, cw - 2, 20, 3, 3, 'F'); doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(...card.c); doc.text(String(card.val), cx + cw / 2 - 1, y + 9, { align: 'center' }); doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 140); doc.text(card.l, cx + cw / 2 - 1, y + 16, { align: 'center' }); }); y += 28; doc.setFillColor(25, 25, 40); doc.roundedRect(M, y, PW, 5, 2, 2, 'F'); if (taxa > 0) { const fc = taxa >= 70 ? [45, 212, 160] : taxa >= 40 ? [245, 200, 66] : [245, 101, 101]; doc.setFillColor(...fc); doc.roundedRect(M, y, PW * (taxa / 100), 5, 2, 2, 'F'); } y += 13; state.history.filter(h => h.result).forEach((h, i) => { chk(30); const ok = h.result.correto; const t = h.topicId ? getTopicById(h.topicId) : null; const topico = t ? t.n : 'JavaScript'; doc.setFillColor(...(ok ? [18, 36, 28] : [36, 18, 18])); doc.roundedRect(M, y, PW, 9, 2, 2, 'F'); doc.setFillColor(...(ok ? [45, 212, 160] : [245, 101, 101])); doc.rect(M, y, 2, 9, 'F'); doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...(ok ? [45, 212, 160] : [245, 101, 101])); doc.text(`${ok ? '✓' : '✗'} #${i + 1} · ${topico}`, M + 4, y + 4); doc.setTextColor(200, 200, 220); doc.text(`${h.result.pontuacao ?? 0}pts`, M + PW - 2, y + 4, { align: 'right' }); y += 11; chk(15); const el = doc.splitTextToSize((h.q?.enunciado || ''), PW - 4); doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(180, 180, 210); doc.text(el.slice(0, 3), M + 2, y); y += el.slice(0, 3).length * 3.5 + 4; if (h.code) { chk(12); const rl = doc.splitTextToSize(h.code, PW - 8); doc.setFillColor(12, 12, 20); doc.roundedRect(M + 2, y, PW - 4, Math.min(rl.length, 5) * 3.5 + 4, 2, 2, 'F'); doc.setFontSize(7); doc.setTextColor(160, 160, 200); doc.text(rl.slice(0, 5), M + 5, y + 3.5); y += Math.min(rl.length, 5) * 3.5 + 7; } y += 3; }); const totalPages = doc.getNumberOfPages(); for (let p = 1; p <= totalPages; p++) { doc.setPage(p); doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.setTextColor(60, 60, 90); doc.text(`JS Master AI · ${agora}`, M, 295); doc.text(`Pág. ${p}/${totalPages}`, 210 - M, 295, { align: 'right' }); } doc.save(`jsmaster_${new Date().toISOString().slice(0, 10)}.pdf`); toast('📄 PDF gerado!', 'ok'); } catch (e) { toast('❌ Erro no PDF: ' + e.message, 'err'); } finally { btn.disabled = false; btn.textContent = '📄 Gerar PDF'; } }
+function exportJSON() { const data = { exportadoEm: new Date().toISOString(), session: state.session, historico: state.history.map(h => ({ topico: h.topicId, ts: h.ts, enunciado: h.q?.enunciado, resposta: h.code, correto: h.result?.correto ?? null, pontuacao: h.result?.pontuacao ?? null, resumo: h.result?.resumo, dicas: (h.hints || []).map(d => d.text), })) }; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = `jsmaster_${new Date().toISOString().slice(0, 10)}.json`; a.click(); URL.revokeObjectURL(a.href); toast('💾 JSON exportado!', 'ok'); }
+function clearAllData() { if (!confirm('Apagar TODO o histórico? Essa ação não pode ser desfeita.')) return; const keysToRemove = []; for (let i = 0; i < localStorage.length; i++) { const key = localStorage.key(i); if (key.startsWith('jsmv7')) keysToRemove.push(key); } keysToRemove.forEach(k => localStorage.removeItem(k)); state.history = []; state.histIdx = -1; state.session = { total: 0, certas: 0, erradas: 0 }; state.current = null; updateStats(); updateNavBtns(); showEmpty(); closeModal(); toast('🗑 Todos os dados apagados.', 'info'); }
+function openEstudos() { document.getElementById('estudosOverlay').classList.add('open'); renderEstudosNav(); document.getElementById('estudosSearch').value = ''; document.getElementById('estudosEmpty').style.display = 'flex'; document.getElementById('estudosContent').style.display = 'none'; document.getElementById('aiChatPanel').style.display = 'none'; document.getElementById('btnGerarExplicacao').style.display = 'none'; document.getElementById('btnGerarExemplos').style.display = 'none'; document.getElementById('btnGerarQuestaoEstudo').style.display = 'none'; ui.estudos.chatHeight = 66; applyChatHeight(); setTimeout(initChatResize, 100); localStorage.setItem('jsmv7_estudos', '1'); }
+function closeEstudos() { document.getElementById('estudosOverlay').classList.remove('open'); localStorage.removeItem('jsmv7_estudos'); }
+function renderEstudosNav(highlight = null) { const nav = document.getElementById('estudosNav'); const grupos = {}; ESTUDOS_DB.forEach(t => { if (!grupos[t.g]) grupos[t.g] = []; grupos[t.g].push(t); }); nav.innerHTML = ''; for (const [grp, topicos] of Object.entries(grupos)) { const gh = document.createElement('div'); gh.className = 'estudos-grp-hdr'; gh.textContent = grp; nav.appendChild(gh); topicos.forEach(t => { const match = highlight && (t.n.toLowerCase().includes(highlight) || t.tags.some(x => x.includes(highlight)) || t.desc.toLowerCase().includes(highlight)); if (highlight && !match) return; const el = document.createElement('div'); el.className = `estudos-nav-item${ui.estudos.active === t.id ? ' ativo' : ''}${highlight && match ? ' match' : ''}`; el.innerHTML = `<span>${t.e}</span><span>${t.n}</span>`; el.onclick = () => { ui.estudos.active = t.id; renderEstudosNav(highlight); renderEstudosTopico(t); }; nav.appendChild(el); }); } }
+function renderEstudosTopico(topico) { document.getElementById('estudosEmpty').style.display = 'none'; document.getElementById('estudosContent').style.display = 'flex'; document.getElementById('aiChatPanel').style.display = 'block'; document.getElementById('btnGerarExplicacao').style.display = 'flex'; document.getElementById('btnGerarExemplos').style.display = 'flex'; document.getElementById('btnGerarQuestaoEstudo').style.display = 'flex'; document.getElementById('aiChatTopicLabel').textContent = `sobre: ${topico.n}`; document.getElementById('aiChatMsgs').innerHTML = ''; _aiChatHistory = []; ui.estudos.chatHeight = 50; applyChatHeight(); const tagsH = topico.tags.map((tag, i) => `<span class="etag ${i % 3 === 1 ? 'g' : i % 3 === 2 ? 'b' : ''}">#${tag}</span>`).join(''); const subsH = topico.subs.map((s, si) => { const uid = `sub_${topico.id}_${si}`; return `<div class="estudos-subtopic"><div class="sub-toggle" onclick="toggleSub('${uid}')"><div class="sub-title"><span class="sub-arrow open" id="sa_${uid}">▶</span>${escH(s.t)}</div></div><div class="sub-body" id="sb_${uid}"><div class="estudos-card"><div class="estudos-card-title">📖 Explicação</div><p>${fmtText(s.exp)}</p></div><div class="code-block-wrap"><div class="code-block-hdr"><span class="code-block-lang">JavaScript</span><button class="btn-copy" onclick="copyCode('cp_${uid}')">📋 Copiar</button></div><pre id="cp_${uid}">${hlSimple(s.code)}</pre></div>${s.ctx ? `<div class="ctx-box"><div class="ctx-label">💡 Quando usar</div>${escH(s.ctx)}</div>` : ''}</div></div>`; }).join(''); const content = document.getElementById('estudosContent'); content.innerHTML = `<div id="estudosMainContent"><div><div class="estudos-topic-title">${topico.e} ${escH(topico.n)}</div><div class="estudos-topic-desc">${escH(topico.desc)}</div><div class="etags" style="margin-top:7px">${tagsH}</div></div><div id="aiGeneratedContent"></div><div id="studyQuestionSection"></div>${subsH}</div>`; ui.estudos.studyQuestion = null; document.getElementById('estudosContentWrap').scrollTop = 0; renderStudyQuestionSection(); requestAnimationFrame(() => { content.querySelectorAll('pre').forEach(el => { if (window.hljs && !el.classList.contains('hljs')) { el.className = 'language-javascript'; hljs.highlightElement(el); } }); }); }
+function toggleSub(uid) { const body = document.getElementById('sb_' + uid); const arrow = document.getElementById('sa_' + uid); if (!body) return; const collapsed = body.classList.toggle('collapsed'); arrow.classList.toggle('open', !collapsed); }
+function copyCode(preId) { const el = document.getElementById(preId); if (!el) return; navigator.clipboard.writeText(el.innerText || el.textContent).then(() => toast('📋 Copiado!', 'ok', 1500)).catch(() => toast('Não foi possível copiar', 'err', 2000)); }
+function searchEstudos(val) { const q = val.toLowerCase().trim(); renderEstudosNav(q || null); if (!q) { if (!ui.estudos.active) { document.getElementById('estudosEmpty').style.display = 'flex'; document.getElementById('estudosContent').style.display = 'none'; } return; } const match = ESTUDOS_DB.find(t => t.n.toLowerCase().includes(q) || t.tags.some(x => x.includes(q))); if (match) { ui.estudos.active = match.id; renderEstudosNav(q); renderEstudosTopico(match); } else { const content = document.getElementById('estudosContent'); content.innerHTML = `<div style="padding:40px;text-align:center;color:var(--muted)">😕 Nenhum resultado para "<strong>${escH(val)}</strong>"</div>`; content.style.display = 'flex'; document.getElementById('estudosEmpty').style.display = 'none'; } }
+async function aiGerarExplicacao() { if (!ui.estudos.active) return; const t = ESTUDOS_DB.find(x => x.id === ui.estudos.active); if (!t) return; const btn = document.getElementById('btnGerarExplicacao'); btn.disabled = true; btn.textContent = '⏳...'; const box = document.getElementById('aiGeneratedContent'); box.innerHTML = `<div style="padding:18px;display:flex;align-items:center;gap:10px;color:var(--text-dim)"><div class="spin" style="width:18px;height:18px;border-width:2px"></div><span style="font-size:14px;font-style:italic">Gerando explicação...</span></div>`; try { const res = await fetch('/estudo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topico: t.n }) }); const data = await res.json(); if (data.error) throw new Error(data.error); box.innerHTML = `<div class="estudos-card" style="border-left:2px solid var(--green)"><div class="estudos-card-title" style="color:var(--green)">🤖 Explicação via IA</div>${renderMarkdown(data.conteudo)}</div>`; requestAnimationFrame(() => { box.querySelectorAll('pre').forEach(el => { if (hljs && !el.classList.contains('hljs')) { el.className = 'language-javascript'; hljs.highlightElement(el); } }); }); } catch (e) { box.innerHTML = `<div style="color:var(--red);font-size:14px;padding:10px">❌ ${escH(e.message)}</div>`; } finally { btn.disabled = false; btn.textContent = '🤖 Explicar'; } }
+async function aiGerarExemplos() { if (!ui.estudos.active) return; const t = ESTUDOS_DB.find(x => x.id === ui.estudos.active); if (!t) return; const btn = document.getElementById('btnGerarExemplos'); btn.disabled = true; btn.textContent = '⏳...'; const box = document.getElementById('aiGeneratedContent'); box.innerHTML = `<div style="padding:18px;display:flex;align-items:center;gap:10px;color:var(--text-dim)"><div class="spin" style="width:18px;height:18px;border-width:2px"></div><span style="font-size:14px;font-style:italic">Gerando exemplos...</span></div>`; try { const res = await fetch('/exemplos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topico: t.n }) }); const data = await res.json(); if (data.error) throw new Error(data.error); box.innerHTML = `<div class="estudos-card" style="border-left:2px solid var(--blue)"><div class="estudos-card-title" style="color:var(--blue)">🧪 Exemplos via IA</div>${renderMarkdown(data.conteudo)}</div>`; requestAnimationFrame(() => { box.querySelectorAll('pre').forEach(el => { if (hljs && !el.classList.contains('hljs')) { el.className = 'language-javascript'; hljs.highlightElement(el); } }); }); } catch (e) { box.innerHTML = `<div style="color:var(--red);font-size:14px;padding:10px">❌ ${escH(e.message)}</div>`; } finally { btn.disabled = false; btn.textContent = '🧪 Exemplos'; } }
+
+async function gerarQuestaoEstudo() {
+  if (!ui.estudos.active) return;
+  const t = ESTUDOS_DB.find(x => x.id === ui.estudos.active);
+  if (!t) return;
+  const btn = document.getElementById('btnGerarQuestaoEstudo');
+  btn.disabled = true;
+  btn.textContent = '⏳...';
+  let section = document.getElementById('studyQuestionSection');
+  section.innerHTML = `<div style="padding:18px;display:flex;align-items:center;gap:10px;color:var(--text-dim)"><div class="spin" style="width:18px;height:18px;border-width:2px"></div><span style="font-size:14px;font-style:italic">Gerando questão de estudo...</span></div>`;
+  try {
+    const res = await fetch('/gerar-questao', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topico: t.n, nivel: 'médio', historico: [] })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    ui.estudos.studyQuestion = { topico: t.n, question: data };
+    renderStudyQuestionSection();
+  } catch (e) {
+    section.innerHTML = `<div style="color:var(--red);font-size:14px;padding:10px">❌ ${escH(e.message)}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '👩‍🏫 Questão';
+  }
+}
+
+function _renderQuestionHTML(q) {
+  return `
+    <div class="estudos-card" style="border-left:2px solid var(--accent2)">
+      <div class="estudos-card-title" style="color:var(--accent2)">📝 Questão de estudo</div>
+      <div class="study-card-text" style="color:var(--text-dim)">${fmtText(q.enunciado || '')}</div>
+      ${q.exemplo ? `<div class="study-card" style="margin-top:8px;border:1px solid rgba(91,156,246,0.2)"><div class="study-card-label" style="color:var(--blue)">💡 Exemplo</div><div class="study-card-text" style="color:var(--blue)">${escH(q.exemplo)}</div></div>` : ''}
+    </div>
+    <div class="estudos-card" style="margin-top:12px">
+      <div class="study-card-label" style="color:var(--green)">💻 Sua resposta</div>
+      <textarea id="studyAnswerInput" style="width:100%;min-height:150px;background:#0a0b12;border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:10px;font-family:'IBM Plex Mono',monospace;font-size:14px;resize:vertical;outline:none;transition:border-color 0.15s;"></textarea>
+      <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <button class="btn-new" style="padding:8px 18px" onclick="verifyStudyAnswer()">✓ Verificar resposta</button>
+        <span style="color:var(--muted);font-size:13px">Escreva seu código e verifique com a IA.</span>
+      </div>
+      <div id="studyQuestionFeedback" style="margin-top:12px"></div>
+    </div>
+  `;
+}
+
+function renderStudyQuestionSection() {
+  const current = ui.estudos.studyQuestion;
+  const section = document.getElementById('studyQuestionSection');
+  if (!section) return;
+  if (!current || !current.question) {
+    section.innerHTML = '';
+    return;
+  }
+  section.innerHTML = _renderQuestionHTML(current.question);
+}
+
+async function verifyStudyAnswer() {
+  const current = ui.estudos.studyQuestion;
+  if (!current || !current.question) return;
+  const code = document.getElementById('studyAnswerInput')?.value || '';
+  if (!code.trim()) {
+    toast('Escreva sua solução antes de verificar!', 'err');
+    return;
+  }
+  const feedback = document.getElementById('studyQuestionFeedback');
+  const button = feedback?.previousElementSibling?.querySelector('button');
+  if (button) {
+    button.disabled = true;
+    button.textContent = '⏳ Verificando...';
+  }
+  feedback.innerHTML = `<div style="padding:14px;color:var(--text-dim);display:flex;align-items:center;gap:10px"><div class="spin" style="width:18px;height:18px;border-width:2px"></div><span>Verificando sua resposta...</span></div>`;
+  try {
+    const res = await fetch('/verificar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enunciado: current.question.enunciado, codigo: code, topico: current.topico, contexto_execucao: '' })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    const ok = data.correto;
+    feedback.innerHTML = `<div class="fb-sec ${ok ? 'ok' : 'err'}"><div class="fb-sec-title" style="color:${ok ? 'var(--green)' : 'var(--red)'}">${ok ? '✅ Correto' : '❌ Não foi dessa vez'}</div><div class="fb-sec-text">${fmtText(data.resumo || (ok ? 'Resposta correta.' : 'Resposta incorreta.'))}</div></div>`;
+    if (data.codigo_exemplo) {
+      feedback.innerHTML += `<div class="fb-sec info"><div class="fb-sec-title" style="color:var(--blue)">💡 Exemplo de resposta</div><div class="fb-sec-text"><pre>${escH(data.codigo_exemplo)}</pre></div></div>`;
+    }
+  } catch (e) {
+    feedback.innerHTML = `<div style="color:var(--red);font-size:14px">❌ ${escH(e.message)}</div>`;
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = 'Verificar resposta';
+    }
+  }
+}
+async function sendAIMessage() { const input = document.getElementById('aiChatInput'); const msg = input.value.trim(); if (!msg) return; const btn = document.getElementById('btnSend'); const t = ui.estudos.active ? ESTUDOS_DB.find(x => x.id === ui.estudos.active) : null; input.value = ''; btn.disabled = true; const msgs = document.getElementById('aiChatMsgs'); msgs.innerHTML += `<div class="ai-msg user">${escH(msg)}</div>`; const typingEl = document.createElement('div'); typingEl.className = 'ai-msg ai'; typingEl.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>'; msgs.appendChild(typingEl); msgs.scrollTop = msgs.scrollHeight; _aiChatHistory.push({ role: 'user', content: msg }); try { const res = await fetch('/perguntar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topico: t?.n || 'JavaScript', pergunta: msg, historico: _aiChatHistory.slice(-8) }) }); const data = await res.json(); if (data.error) throw new Error(data.error); _aiChatHistory.push({ role: 'assistant', content: data.resposta }); typingEl.innerHTML = fmtCode(data.resposta); requestAnimationFrame(() => { typingEl.querySelectorAll('pre').forEach(el => { if (hljs && !el.classList.contains('hljs')) { el.className = 'language-javascript'; hljs.highlightElement(el); } }); }); } catch (e) { typingEl.innerHTML = `<span style="color:var(--red)">${escH(e.message)}</span>`; } finally { btn.disabled = false; msgs.scrollTop = msgs.scrollHeight; } }
+
+function renderMarkdown(md) { if (!md) return ''; let h = ''; const lines = md.split('\n'); let inCode = false, codeBuf = ''; for (const line of lines) { if (line.startsWith('```')) { if (inCode) { h += `<div class="code-block-wrap" style="margin:7px 0"><div class="code-block-hdr"><span class="code-block-lang">JavaScript</span></div><pre>${hlSimple(codeBuf.trim())}</pre></div>`; codeBuf = ''; inCode = false; } else { inCode = true; } continue; } if (inCode) { codeBuf += line + '\n'; continue; } if (line.startsWith('### ')) { h += `<h4 style="font-size:14px;font-weight:700;margin:10px 0 4px;color:var(--accent2)">${escH(line.slice(4))}</h4>`; continue; } if (line.startsWith('## ')) { h += `<h3 style="font-size:14px;font-weight:800;margin:12px 0 5px">${escH(line.slice(3))}</h3>`; continue; } if (line.startsWith('# ')) { h += `<h2 style="font-size:14px;font-weight:800;margin:12px 0 5px">${escH(line.slice(2))}</h2>`; continue; } if (line.startsWith('- ') || line.startsWith('* ')) { h += `<li style="font-size:14px;line-height:1.72;margin-left:14px">${fmtInline(line.slice(2))}</li>`; continue; } if (line.trim() === '') { h += '<br>'; continue; } h += `<p style="font-size:14px;line-height:1.75;margin-bottom:4px">${fmtInline(line)}</p>`; } return h; }
+function fmtInline(t) { let h = escH(t); h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); h = h.replace(/`([^`]+)`/g, '<code>$1</code>'); return h; }
+let _sidebarOpen = true;
+function toggleSidebar() { _sidebarOpen = !_sidebarOpen; document.getElementById('sidebar').classList.toggle('collapsed', !_sidebarOpen); document.getElementById('sidebarToggle').textContent = _sidebarOpen ? '◀' : '▶'; if (monacoEditor) setTimeout(() => monacoEditor.layout(), 260); }
+let _confRaf = null;
+function fireConfetti() { const canvas = document.getElementById('confete'); if (!canvas) return; canvas.style.display = 'block'; canvas.width = window.innerWidth; canvas.height = window.innerHeight; const ctx = canvas.getContext('2d'); const COLORS = ['#5c7cfa','#7c9aff','#2dd4a0','#f5c842','#5b9cf6','#f56565','#fb923c','#c084fc','#4ade80','#facc15']; const parts = Array.from({ length: 110 }, () => ({ x: Math.random() * canvas.width, y: Math.random() * canvas.height * -0.5 - 10, vx: (Math.random() - 0.5) * 4, vy: Math.random() * 3 + 2, size: Math.random() * 7 + 4, color: COLORS[Math.floor(Math.random() * COLORS.length)], rot: Math.random() * Math.PI * 2, vrot: (Math.random() - 0.5) * 0.18, type: Math.random() > 0.5 ? 'rect' : 'circle' })); const start = Date.now(), DUR = 3000; function frame() { const prog = (Date.now() - start) / DUR; if (prog >= 1) { ctx.clearRect(0, 0, canvas.width, canvas.height); canvas.style.display = 'none'; _confRaf = null; return; } ctx.clearRect(0, 0, canvas.width, canvas.height); const alpha = prog > 0.65 ? 1 - ((prog - 0.65) / 0.35) : 1; parts.forEach(p => { p.x += p.vx; p.y += p.vy; p.rot += p.vrot; p.vy += 0.065; if (p.y > canvas.height + 20) { p.y = -20; p.x = Math.random() * canvas.width; p.vy = Math.random() * 2 + 1; } ctx.save(); ctx.globalAlpha = alpha; ctx.fillStyle = p.color; ctx.translate(p.x, p.y); ctx.rotate(p.rot); if (p.type === 'rect') ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2); else { ctx.beginPath(); ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2); ctx.fill(); } ctx.restore(); }); _confRaf = requestAnimationFrame(frame); } if (_confRaf) cancelAnimationFrame(_confRaf); _confRaf = requestAnimationFrame(frame); }
+function toast(msg, type = 'info', dur = 3000) { const el = document.getElementById('toast'); el.className = `toast ${type}`; el.textContent = msg; el.style.display = 'flex'; el.style.opacity = '1'; clearTimeout(toast._t); toast._t = setTimeout(() => { el.style.opacity = '0'; setTimeout(() => { el.style.display = 'none'; el.style.opacity = '1'; }, 300); }, dur); }
+const LS = 'jsmv7', LSS = 'jsmv7sess';
+function saveLS() { try { localStorage.setItem(LS, JSON.stringify(state.history)); localStorage.setItem(LSS, JSON.stringify(state.session)); } catch (e) { } }
+
+// ── Resize: Chat dos Estudos (drag) ──
+function initChatResize() {
+  const handle = document.getElementById('chatResizeHandle');
+  const panel = document.getElementById('aiChatPanel');
+  if (!handle || !panel) return;
+  let startY = 0, startH = 0, dragging = false;
+  const MIN_H = 50, MAX_H = 600;
+  function onMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const delta = startY - clientY;
+    ui.estudos.chatHeight = Math.max(MIN_H, Math.min(MAX_H, startH + delta));
+    applyChatHeight();
+  }
+  function onUp() { dragging = false; handle.classList.remove('dragging'); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); }
+  handle.addEventListener('mousedown', (e) => { e.preventDefault(); startY = startH = panel.offsetHeight; dragging = true; handle.classList.add('dragging'); document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); });
+  handle.addEventListener('touchstart', (e) => { startY = startH = panel.offsetHeight; dragging = true; handle.classList.add('active'); document.addEventListener('touchmove', onMove, { passive: false }); document.addEventListener('touchend', onUp); }, { passive: false });
+}
+
+function applyChatHeight() { const msgs = document.getElementById('aiChatMsgs'); const panel = document.getElementById('aiChatPanel'); const label = document.getElementById('aiChatHeightLabel'); if (!panel) return; const height = Math.max(50, Math.min(600, ui.estudos.chatHeight || 50)); ui.estudos.chatHeight = height; panel.style.height = height + 'px'; if (msgs && height > 60) msgs.style.overflowY = 'auto'; }
+function snap() {
+  const snapshot = {
+    criadoEm: new Date().toISOString(),
+    state: { ...state, currentCode: monacoEditor ? monacoEditor.getValue() : '' },
+    aiChatHistory: _aiChatHistory.slice(),
+  };
+  try {
+    localStorage.setItem(`jsmv7_snap_${snapshot.criadoEm}`, JSON.stringify(snapshot));
+    toast('Snap salvo no localStorage.', 'ok', 2200);
+  } catch (e) {
+    toast('Erro ao salvar snap: ' + e.message, 'err', 3000);
+  }
+  return snapshot;
+}
+function loadLS() { try { const raw = localStorage.getItem(LS); const rss = localStorage.getItem(LSS); if (!raw) return; const hist = JSON.parse(raw); if (!Array.isArray(hist) || !hist.length) return; state.history = hist; state.histIdx = hist.length - 1; if (rss) { const s = JSON.parse(rss); state.session = { total: s.total || 0, certas: s.certas || 0, erradas: s.erradas || 0 }; } else { hist.forEach(h => { if (h.result) { state.session.total++; h.result.correto ? state.session.certas++ : state.session.erradas++; } }); } updateStats(); updateNavBtns(); const last = hist[hist.length - 1]; if (last?.q) { state.current = last.q; if (last.topicId) { state.topicId = last.topicId; const t = getTopicById(last.topicId); if (t) { document.getElementById('topicBadge').textContent = t.e + ' ' + t.n; document.getElementById('btnNew').disabled = false; } } renderTopics(''); initMonaco(() => { renderQuestion(last.q); if (last.code) monacoEditor.setValue(last.code); if (last.result) renderFeedback(last.result); if (last.hints?.length) renderHints(last.hints); }); } toast(`✅ ${hist.length} questão(ões) restaurada(s)`, 'ok', 2500); } catch (e) { } }
+async function checkHealth() { try { const res = await fetch('/health', { signal: AbortSignal.timeout(5000) }); const data = await res.json(); const ok = res.ok && data.status === 'ok'; document.getElementById('statusDot').className = `status-dot ${ok ? 'ok' : 'warn'}`; document.getElementById('statusText').textContent = ok ? 'Servidor OK' : 'Servidor com falha'; } catch (e) { document.getElementById('statusDot').className = 'status-dot err'; document.getElementById('statusText').textContent = 'Servidor offline'; } }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (document.getElementById('estudosOverlay').classList.contains('open')) closeEstudos(); else if (document.getElementById('modalOverlay').classList.contains('open')) closeModal(); else if (document.getElementById('historyDrawer').classList.contains('open')) closeHistory(); } });
+renderTopics();
+checkHealth();
+setInterval(checkHealth, 30000);
+setTimeout(loadLS, 80);
+setTimeout(() => { if (!monacoEditor) initMonaco(() => {}); }, 180);
+setTimeout(() => { if (localStorage.getItem('jsmv7_estudos') === '1') openEstudos(); }, 200);
+</script>
+</body>
+</html>
