@@ -841,17 +841,25 @@ Você sempre responde em português brasileiro.
 Quando solicitado a gerar questões, você cria desafios reais e concretos de programação, não questões teóricas.
 Suas questões sempre pedem que o aluno escreva código JavaScript funcional.`;
 
-const SYS_VERIFICADOR = `Você é um avaliador especialista em JavaScript que valida com base no RESULTADO, não na estrutura.
+const SYS_VERIFICADOR = `Você é um avaliador especialista em JavaScript que valida com base no RESULTADO e nas REGRAS DO ENUNCIADO.
 
-REGRA FUNDAMENTAL: Se o código produz o resultado correto, ele está CORRETO — independente da abordagem, estrutura ou estilo.
-- Aceite loops FOR, WHILE, recursão, métodos funcionais — qualquer abordagem válida
-- Se o resultado final atende ao pedido, marque como correto: true
-- NÃO penalize por usar abordagem diferente da esperada
-- NÃO penalize por código mais verboso ou mais conciso que o esperado
-- Só marque como incorreto se o resultado REAL estiver errado
+REGRA FUNDAMENTAL: A validação tem DUAS CAMADAS:
+
+CAMADA 1 — RESULTADO: O código produz a saída esperada?
+CAMADA 2 — REGRAS DO ENUNCIADO: O enunciado impõe restrições? (ex: "use map", "não use for", "use while", "use forEach")
+
+REGULAS DE AVALIAÇÃO:
+1. Se resultado OK + respeita regras → correto: true, pontuacao: 100
+2. Se resultado OK + viola regras explícitas → correto: false, pontuacao: 50, resumo parcial explicando que o resultado está certo mas as regras foram violadas
+3. Se resultado ERRADO → correto: false, pontuacao: 0
+
+- Identifique restrições no enunciado (palavras como "use", "utilize", "não use", "sem", "proibido", "obrigatório")
+- Se o enunciado pede uso específico (map, filter, for, while, etc.), verifique se o código atende
+- Se o enunciado proíbe algo, verifique se o código evita
 
 Você responde sempre em português brasileiro com feedback detalhado e construtivo.
-Quando correto, sempre mostre 2-3 formas alternativas de resolver o mesmo problema.`;
+Quando correto, sempre mostre 2-3 formas alternativas de resolver o mesmo problema.
+NUNCA inclua campo "codigo_exemplo" na resposta.`;
 
 // ── ENDPOINTS ─────────────────────────────────────────────────────────────────
 
@@ -910,7 +918,7 @@ function verificarResposta(enunciado, codigoAluno, topico, contextoExecucao, cal
         o_que_fez_bem: 'Código foi executado',
         problemas: erroMsg || 'Erro de execução',
         sugestao: 'Corrija a sintaxe ou lógica do código',
-        codigo_exemplo: codigoAluno,
+        codigo_exemplo: '',
         solucoes_alternativas: [],
         conceitos_usados: []
       };
@@ -925,7 +933,7 @@ function verificarResposta(enunciado, codigoAluno, topico, contextoExecucao, cal
         o_que_fez_bem: 'Código foi executado sem erros',
         problemas: 'Não houve saída visível no console',
         sugestao: 'Use console.log para imprimir o resultado solicitado',
-        codigo_exemplo: codigoAluno,
+        codigo_exemplo: '',
         solucoes_alternativas: [],
         conceitos_usados: []
       };
@@ -938,30 +946,44 @@ function verificarResposta(enunciado, codigoAluno, topico, contextoExecucao, cal
     }
 
     const prompt = `Você é um avaliador de exercícios de programação em JavaScript.
-Você deve validar apenas o resultado produzido pelo código, não a implementação.
+Você deve validar o resultado E as regras impostas pelo enunciado.
 
 Enunciado da questão:
 ${enunciado}
+
+Código do aluno:
+\`\`\`javascript
+${codigoAluno}
+\`\`\`
 
 Saída produzida pelo código:
 """
 ${saidaReal}
 """
 
+INSTRUÇÕES DE VALIDAÇÃO:
+1. Verifique SE a saída atende ao enunciado (resultado correto)
+2. Analise o enunciado por RESTRIÇÕES EXPLÍCITAS:
+   - Se pede "use map/filter/reduce/forEach" → o código deve usar esse método
+   - Se pede "não use for/while" → o código NÃO deve usar esses loops
+   - Se pede "utilize while" → deve usar while, não for
+   - Qualquer restrição clara no enunciado deve ser respeitada
+3. Resultado:
+   - Resultado correto + sem restrições violadas → correto: true
+   - Resultado correto + restrição violada → correto: false, pontuacao: 50
+   - Resultado incorreto → correto: false, pontuacao: 0
+
 Responda apenas com um objeto JSON válido no formato abaixo, sem texto adicional:
 {
   "correto": true|false,
-  "pontuacao": 100|0,
+  "pontuacao": 100|50|0,
   "resumo": "Resumo breve do motivo da avaliação",
   "o_que_fez_bem": "O que o código acertou",
   "problemas": "O que está errado ou faltando",
   "sugestao": "Sugestão prática para corrigir"
 }
 
-Critérios:
-- Marque como correto apenas se a saída resolver o enunciado com precisão.
-- Se a saída não atender ao pedido do enunciado, marque como incorreto.
-- Não use a estrutura de objeto JavaScript, apenas JSON válido.
+IMPORTANTE: NUNCA inclua o campo "codigo_exemplo" na resposta.
 `;
 
     console.log('[VERIFICAR] enviando para ollama - saída real capturada:');
@@ -986,7 +1008,7 @@ Critérios:
             o_que_fez_bem: 'A saída parece atender ao enunciado',
             problemas: null,
             sugestao: 'Nenhuma correção necessária',
-            codigo_exemplo: codigoAluno,
+            codigo_exemplo: '',
             solucoes_alternativas: [],
             conceitos_usados: []
           };
@@ -998,7 +1020,7 @@ Critérios:
             o_que_fez_bem: 'Código foi executado sem erros',
             problemas: 'A saída não atende ao enunciado',
             sugestao: 'Ajuste o código para atender ao enunciado',
-            codigo_exemplo: codigoAluno,
+            codigo_exemplo: '',
             solucoes_alternativas: [],
             conceitos_usados: []
           };
@@ -1014,7 +1036,7 @@ Critérios:
           o_que_fez_bem: 'Código foi executado sem erros',
           problemas: 'Resposta do verificador não estava em JSON válido',
           sugestao: 'Reinicie o serviço Ollama ou revise o prompt',
-          codigo_exemplo: codigoAluno,
+          codigo_exemplo: '',
           solucoes_alternativas: [],
           conceitos_usados: []
         };
@@ -1028,7 +1050,7 @@ Critérios:
         o_que_fez_bem: json.o_que_fez_bem || 'Código foi executado sem erros',
         problemas: json.problemas || null,
         sugestao: json.sugestao || (json.correto ? 'Está correto.' : 'Ajuste o código para atender ao enunciado.'),
-        codigo_exemplo: json.codigo_exemplo || codigoAluno,
+        codigo_exemplo: json.codigo_exemplo || '',
         solucoes_alternativas: json.solucoes_alternativas || [],
         conceitos_usados: json.conceitos_usados || []
       };
@@ -1043,7 +1065,7 @@ Critérios:
         o_que_fez_bem: 'Código foi executado sem erros',
         problemas: String(err),
         sugestao: 'Tente novamente em alguns instantes ou reinicie o serviço Ollama',
-        codigo_exemplo: codigoAluno,
+        codigo_exemplo: '',
         solucoes_alternativas: [],
         conceitos_usados: []
       };

@@ -1300,6 +1300,8 @@ let monacoEditor = null;
 let monacoInitializing = false;
 let monacoInitCallbacks = [];
 let _aiChatHistory = [];
+let _lastExecutionId = 0;
+let _verificacaoStatus = 'idle';
 
 function initMonaco(cb) {
   if (monacoEditor) {
@@ -1387,8 +1389,11 @@ async function verify() {
     toast('Nenhuma questão ativa.', 'err');
     return;
   }
-  if (state.loading) return;
-  state.loading = true;
+  if (_verificacaoStatus === 'validando') return;
+  _verificacaoStatus = 'validando';
+
+  const execId = ++_lastExecutionId;
+
   state.attempts++;
   document.getElementById('btnVerify').disabled = true;
   const fb = document.getElementById('feedbackBox');
@@ -1405,6 +1410,8 @@ async function verify() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ enunciado: state.current.enunciado, codigo: code, topico: getTopicName(), contexto_execucao: execInfo })
     });
+
+    if (execId !== _lastExecutionId) return;
 
     let data;
     const contentType = res.headers.get('content-type') || '';
@@ -1440,10 +1447,12 @@ async function verify() {
     renderFeedback(data);
     saveLS();
   } catch (err) {
+    if (execId !== _lastExecutionId) return;
     fb.className = 'feedback-box show';
     fb.innerHTML = `<div style="padding:14px;color:var(--red)"><strong>❌ Erro:</strong> ${escH(err.message)}<br><small style="color:var(--muted)">Verifique se o Ollama está rodando na porta 11434.</small></div>`;
   } finally {
-    state.loading = false;
+    _verificacaoStatus = 'concluido';
+    setTimeout(() => { if (_verificacaoStatus === 'concluido') _verificacaoStatus = 'idle'; }, 500);
     document.getElementById('btnVerify').disabled = false;
   }
 }
