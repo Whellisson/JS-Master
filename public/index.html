@@ -1150,6 +1150,36 @@ const TOPICS = [
     {id:'pilha-fila', e:'📚', n:'Pilha e Fila'},
     {id:'dinamica', e:'⚡', n:'Programação Dinâmica'},
   ]},
+  { grupo:'⚛️ React', itens:[
+    {id:'react-componentes', e:'🧩', n:'Componentes'},
+    {id:'react-props', e:'📦', n:'Props'},
+    {id:'react-state', e:'🔄', n:'State e useState'},
+    {id:'react-useeffect', e:'⏱️', n:'useEffect'},
+    {id:'react-hooks', e:'🪝', n:'Hooks Avançados'},
+    {id:'react-api', e:'🌐', n:'Consumo de API'},
+    {id:'react-router', e:'🛣️', n:'React Router'},
+    {id:'react-estrutura', e:'📁', n:'Estrutura de Projeto'},
+  ]},
+  { grupo:'🔷 Angular', itens:[
+    {id:'ng-typescript', e:'📘', n:'TypeScript'},
+    {id:'ng-componentes', e:'🧩', n:'Componentes'},
+    {id:'ng-servicos', e:'🔧', n:'Serviços'},
+    {id:'ng-dependency-injection', e:'💉', n:'Injeção de Dependência'},
+    {id:'ng-modules', e:'📦', n:'Módulos'},
+    {id:'ng-routing', e:'🛣️', n:'Rotas'},
+    {id:'ng-forms', e:'📝', n:'Forms'},
+    {id:'ng-http', e:'🌐', n:'HTTP Client'},
+  ]},
+  { grupo:'🚂 Ruby on Rails', itens:[
+    {id:'rails-ruby', e:'💎', n:'Fundamentos de Ruby'},
+    {id:'rails-mvc', e:'🏗️', n:'Arquitetura MVC'},
+    {id:'rails-routes', e:'🛣️', n:'Rotas'},
+    {id:'rails-controllers', e:'🎮', n:'Controllers'},
+    {id:'rails-models', e:'🗃️', n:'Models e Validações'},
+    {id:'rails-database', e:'🗄️', n:'Banco de Dados'},
+    {id:'rails-api', e:'🌐', n:'APIs com Rails'},
+    {id:'rails-auth', e:'🔐', n:'Autenticação'},
+  ]},
 ];
 
 const ESTUDOS_DB = [
@@ -1377,6 +1407,85 @@ const ESTUDOS_DB = [
   ]},
   {id:'dinamica', e:'⚡', n:'Programação Dinâmica', g:'🧮 Algoritmos', tags:['DP','memoization','otimização'], desc:'Otimização recursiva com subproblemas sobrepostos.', subs:[
     {t:'Fibonacci com memoização', exp:'Memoization cacheia resultados.', code:'const memo = {};\nfunction fib(n) {\n  if (n <= 1) return n;\n  if (memo[n]) return memo[n];\n  memo[n] = fib(n-1) + fib(n-2);\n  return memo[n];\n}\nconsole.log(fib(40)); // rápido', ctx:'Transforma O(2^n) em O(n).'},
+  ]},
+
+  // ── React ──
+  {id:'react-componentes', e:'🧩', n:'Componentes React', g:'⚛️ React', tags:['componente','JSX','função','classe'], desc:'Blocos de construção da UI no React. Podem ser funções ou classes.', subs:[
+    {t:'Componente função', exp:'Função que retorna JSX.', code:'function Saudacao({ nome }) {\n  return <h1>Olá, {nome}!</h1>;\n}\nexport default Saudacao;', ctx:'É o padrão moderno. Use arrow functions ou declaração normal.'},
+  ]},
+  {id:'react-props', e:'📦', n:'Props', g:'⚛️ React', tags:['props','propriedades','children'], desc:'Dados passados de pai para filho. São readonly.', subs:[
+    {t:'Uso de props', exp:'`function Card({ titulo, children })`', code:'function Card({ titulo, children, cor }) {\n  return (\n    <div style={{ borderColor: cor }}>\n      <h2>{titulo}</h2>\n      <div>{children}</div>\n    </div>\n  );\n}', ctx:'Sempre desestruture props para clareza.'},
+  ]},
+  {id:'react-state', e:'🔄', n:'State e useState', g:'⚛️ React', tags:['state','useState','reatividade'], desc:'Gerenciamento de estado local com o hook useState.', subs:[
+    {t:'useState básico', exp:'`const [valor, setValor] = useState(inicial)`', code:'function Contador() {\n  const [count, setCount] = useState(0);\n  return (\n    <button onClick={() => setCount(c => c + 1)}>\n      Cliques: {count}\n    </button>\n  );\n}', ctx:'Updates são assíncronos. Use função callback para basear no valor anterior.'},
+  ]},
+  {id:'react-useeffect', e:'⏱️', n:'useEffect e Ciclo de Vida', g:'⚛️ React', tags:['useEffect','lifecycle','side-effect','cleanup'], desc:'Executa side-effects: fetch, timers, subscrições, manipulação do DOM.', subs:[
+    {t:'useEffect', exp:'`useEffect(() => { efeito }, [deps])`', code:'function UserProfile({ userId }) {\n  const [user, setUser] = useState(null);\n\n  useEffect(() => {\n    fetch(`/api/users/${userId}`)\n      .then(r => r.json())\n      .then(setUser);\n  }, [userId]);\n\n  if (!user) return <p>Carregando...</p>;\n  return <h1>{user.name}</h1>;\n}\n\n// Cleanup\neffect(() => {\n  const timer = setInterval(tick, 1000);\n  return () => clearInterval(timer);\n}, []);', ctx:'Array vazio [] = executa uma vez. Sem array = toda renderização. Com deps = quando mudam.'},
+  ]},
+  {id:'react-hooks', e:'🪝', n:'Hooks Avançados', g:'⚛️ React', tags:['useContext','useReducer','useRef','useMemo','useCallback'], desc:'Hooks além do básico: contexto, reducer, refs, memoização.', subs:[
+    {t:'useContext + useReducer', exp:'Estado global sem boilerplate.', code:'const ThemeContext = createContext();\n\nfunction App() {\n  const [theme, setTheme] = useReducer(\n    (state, action) => action,\n    { cor: "dark", fonte: "sans" }\n  );\n  return (\n    <ThemeContext.Provider value={{ theme, setTheme }}>\n      <Painel />\n    </ThemeContext.Provider>\n  );\n}\n\nfunction Painel() {\n  const { theme } = useContext(ThemeContext);\n  return <div>Tema: {theme.cor}</div>;\n}', ctx:'useContext evita prop drilling. useReducer para estado complexo.'},
+  ]},
+  {id:'react-api', e:'🌐', n:'Consumo de API no React', g:'⚛️ React', tags:['fetch','axios','api','REST','loading'], desc:'Buscar dados externos com useEffect + fetch, padrão async/await.', subs:[
+    {t:'Fetch com useEffect', exp:'useEffect + fetch + loading + erro.', code:'function ListaUsuarios() {\n  const [usuarios, setUsuarios] = useState([]);\n  const [loading, setLoading] = useState(true);\n  const [erro, setErro] = useState(null);\n\n  useEffect(() => {\n    const carregar = async () => {\n      try {\n        const resp = await fetch("https://api.example.com/users");\n        if (!resp.ok) throw new Error("Falha ao carregar");\n        const data = await resp.json();\n        setUsuarios(data);\n      } catch (err) {\n        setErro(err.message);\n      } finally {\n        setLoading(false);\n      }\n    };\n    carregar();\n  }, []);\n\n  if (loading) return <p>Carregando...</p>;\n  if (erro) return <p style={{color:"red"}}>{erro}</p>;\n  return (<ul>{usuarios.map(u => <li key={u.id}>{u.nome}</li>)}</ul>);\n}', ctx:'Sempre trate loading e erro. Considere React Query para projetos maiores.'},
+  ]},
+  {id:'react-router', e:'🛣️', n:'React Router', g:'⚛️ React', tags:['router','rotas','BrowserRouter','Route','Link','Navigate'], desc:'Navegação entre páginas sem reload no SPA.', subs:[
+    {t:'Configuração básica', exp:'BrowserRouter, Routes, Route, Link.', code:'import { BrowserRouter, Routes, Route, Link } from "react-router-dom";\n\nfunction App() {\n  return (\n    <BrowserRouter>\n      <nav>\n        <Link to="/">Home</Link>\n        <Link to="/sobre">Sobre</Link>\n      </nav>\n      <Routes>\n        <Route path="/" element={<Home />} />\n        <Route path="/sobre" element={<Sobre />} />\n        <Route path="*" element={<NaoEncontrado />} />\n      </Routes>\n    </BrowserRouter>\n  );\n}', ctx:'Use useParams() para parâmetros de rota. Use useNavigate() para navegação programática.'},
+  ]},
+  {id:'react-estrutura', e:'📁', n:'Estrutura de Projeto React', g:'⚛️ React', tags:['estrutura','pastas','organização','Vite','create-react-app'], desc:'Organização de pastas, componentes, hooks, contextos e serviços.', subs:[
+    {t:'Estrutura recomendada', exp:'Separação por feature ou tipo.', code:'src/\n├── components/     # Componentes reusáveis\n├── pages/          # Páginas (rotas)\n├── hooks/          # Custom hooks\n├── contexts/       # Contextos globais\n├── services/       # Chamadas de API\n├── utils/          # Funções utilitárias\n├── styles/         # CSS / Tailwind config\n├── assets/         # Imagens, ícones\n└── App.jsx, main.jsx', ctx:' projetos grandes: organize por feature (ex: auth/, products/) em vez de por tipo.'},
+  ]},
+
+  // ── Angular ──
+  {id:'ng-typescript', e:'📘', n:'TypeScript para Angular', g:'🔷 Angular', tags:['typescript','tipos','interfaces','generics','enum'], desc:'TypeScript adiciona tipagem estática ao JavaScript. Essencial para Angular.', subs:[
+    {t:'Fundamentos de TypeScript', exp:'Tipos, interfaces, enums.', code:'// Tipagem básica\nlet nome: string = "Ana";\nlet idade: number = 30;\nlet ativo: boolean = true;\n\n// Interface\ninterface Usuario {\n  id: number;\n  nome: string;\n  email: string;\n  perfil: "admin" | "user" | "viewer";\n}\n\n// Generics\nfunction primeiro<T>(arr: T[]): T | undefined {\n  return arr[0];\n}\n\n// Enum\nenum Status {\n  Ativo = "ativo",\n  Inativo = "inativo",\n  Pendente = "pendente"\n}', ctx:'Angular usa TypeScript nativamente. Interfaces definem contratos de dados.'},
+  ]},
+  {id:'ng-componentes', e:'🧩', n:'Componentes Angular', g:'🔷 Angular', tags:['component','@Component','template','decorator'], desc:'Unidades básicas de UI no Angular, com decorator @Component.', subs:[
+
+N  {t:'Declaração de componente', exp:'@Component decorator com template.', code:'import { Component } from "@angular/core";\n\n@Component({\n  selector: "app-saudacao",\n  standalone: true,\n  template: `<h1>Olá, {{ nome }}!</h1>`,\n  styles: [`h1 { color: blue; }`]\n})\nexport class SaudacaoComponent {\n  nome = "ANA";\n}', ctx:'Standalone components (NG 14+) não precisam de NgModule.'},
+  ]},
+  {id:'ng-servicos', e:'🔧', n:'Serviços e Injeção de Dependência', g:'🔷 Angular', tags:['service','@Injectable','DI','injeção de dependência'], desc:'Serviços encapsulam lógica de negócio. Angular injeta automaticamente via DI.', subs:[
+    {t:'Serviço com DI', exp:'@Injectable + providedIn', code:'import { Injectable } from "@angular/core";\n\nexport interface Produto {\n  id: number;\n  nome: string;\n  preco: number;\n}\n\n@Injectable({ providedIn: "root" })\nexport class ProdutoService {\n  private produtos: Produto[] = [];\n\n  listar(): Produto[] {\n    return this.produtos;\n  }\n\n  adicionar(produto: Produto): void {\n    this.produtos.push(produto);\n  }\n}', ctx:'providedIn: "root" cria singleton global. Injetado no construtor.'},
+  ]},
+  {id:'ng-dependency-injection', e:'💉', n:'Injeção de Dependência', g:'🔷 Angular', tags:['DI','constructor','inject','hierarquia','provider'], desc:'Angular gerencia instâncias de serviços automaticamente via sistema de DI.', subs:[
+    {t:'Uso com construtor', exp:'`constructor(private service: Service)`', code:'@Component({...})\nexport class ListaComponent {\n  produtos: Produto[] = [];\n\n  constructor(private produtoService: ProdutoService) {\n    this.produtos = this.produtoService.listar();\n  }\n}\n\n// Forma moderna com inject()\nimport { inject } from "@angular/core";\n\n@Component({...})\nexport class ListaComponent {\n  private produtoService = inject(ProdutoService);\n  produtos = this.produtoService.listar();\n}', ctx:'inject() é a forma moderna (NG 14+). DI hierárquico: pode ser limitado por componente.'},
+  ]},
+  {id:'ng-modules', e:'📦', n:'Módulos (NgModule)', g:'🔷 Angular', tags:['NgModule','imports','exports','declarations','bootstrap'], desc:'Organizam a aplicação em blocos coesos. Desde NG 14, standalone components reduzem necessidade.', subs:[
+    {t:'NgModule básico', exp:'declare components, imports, exports.', code:'import { NgModule } from "@angular/core";\nimport { BrowserModule } from "@angular/platform-browser";\nimport { AppComponent } from "./app.component";\n\n@NgModule({\n  declarations: [AppComponent],\n  imports: [BrowserModule],\n  providers: [],\n  bootstrap: [AppComponent]\n})\nexport class AppModule {}', ctx:'NgModule agrupa componentes, diretivas e pipes. Standalone components (NG 14+) são alternativa moderna.'},
+  ]},
+  {id:'ng-routing', e:'🛣️', n:'Rotas no Angular', g:'🔷 Angular', tags:['routes','RouterModule','router-outlet','routerLink','guard'], desc:'Navegação entre views com RouterModule e guards de proteção.', subs:[
+    {t:'Configuração de rotas', exp:'RouterModule.forRoot + router-outlet', code:'import { Routes, RouterModule, RouterOutlet } from "@angular/router";\n\nconst rotas: Routes = [\n  { path: "", component: HomeComponent },\n  { path: "sobre", component: SobreComponent },\n  { path: "produto/:id", component: ProdutoComponent },\n  { path: "**", component: NaoEncontradoComponent }\n];\n\n@NgModule({...})\nexport class AppRoutingModule {\n  protected routes = RouterModule.forRoot(rotas);\n}', ctx:'Use ActivatedRoute para ler parâmetros. Guards (CanActivate) protegem rotas.'},
+  ]},
+  {id:'ng-forms', e:'📝', n:'Forms (Template-driven e Reactive)', g:'🔷 Angular', tags:['form','FormGroup','FormControl','Validators','template-driven'], desc:'Duas abordagens: template-driven (simples) e reactive forms (complexos, testáveis).', subs:[
+    {t:'Reactive Forms', exp:'FormGroup, FormControl, Validators.', code:'import { FormGroup, FormControl, Validators, ReactiveFormsModule } from "@angular/forms";\n\n@Component({\n  standalone: true,\n  imports: [ReactiveFormsModule],\n  template: `\n    <form [formGroup]="form" (ngSubmit)="onSubmit()">\n      <input formControlName="nome" placeholder="Nome">\n      <input formControlName="email" type="email" placeholder="Email">\n      <button type="submit" [disabled]="form.invalid">Enviar</button>\n    </form>\n  `\n})\nexport class FormComponent {\n  form = new FormGroup({\n    nome: new FormControl("", Validators.required),\n    email: new FormControl("", [Validators.required, Validators.email])\n  });\n\n  onSubmit() {\n    console.log(this.form.value);\n  }\n}', ctx:'Reactive forms permitem validação complexa e testes unitários.'},
+  ]},
+  {id:'ng-http', e:'🌐', n:'HTTP Client', g:'🔷 Angular', tags:['HttpClient','get','post','interceptor','observables'], desc:'HttpClient para requisições HTTP com Observables e interceptors.', subs:[
+    {t:'HttpClient básico', exp:'inject(HttpClient) + observables', code:'import { HttpClient } from "@angular/common/http";\nimport { inject } from "@angular/core";\n\nexport interface Usuario {\n  id: number;\n  nome: string;\n}\n\n@Injectable({ providedIn: "root" })\nexport class UsuarioService {\n  private http = inject(HttpClient);\n  private url = "https://api.example.com/users";\n\n  listar() {\n    return this.http.get<Usuario[]>(this.url);\n  }\n\n  criar(usuario: Usuario) {\n    return this.http.post<Usuario>(this.url, usuario);\n  }\n}', ctx:'Retorna Observable — use .subscribe() ou AsyncPipe no template. Interceptores adicionam headers globais.'},
+  ]},
+
+  // ── Ruby on Rails ──
+  {id:'rails-ruby', e:'💎', n:'Fundamentos de Ruby', g:'🚂 Ruby on Rails', tags:['ruby','sintaxe','classe','bloco','module'], desc:'Ruby é uma linguagem orientada a objetos, elegante e expressiva. Base do Rails.', subs:[
+    {t:'Sintaxe básica de Ruby', exp:'Variáveis, métodos, blocos, classes.', code:'# Variáveis e tipos\nnome = "Ana"\nidade = 30\nativo = true\nnotas = [10, 9, 8]\n\n# Métodos\ndef saudacao(nome)\n  "Olá, #{nome}!"  # interpolação de strings\nend\n\n# Blocos\n[1, 2, 3].each { |n| puts n }\n[1, 2, 3].map { |n| n * 2 }  # [2, 4, 6]\n\n# Classe\nclass Pessoa\n  attr_accessor :nome, :idade\n\n  def initialize(nome, idade)\n    @nome = nome\n    @idade = idade\n  end\n\n  def apresentar\n    "#{@nome}, #{@idade} anos"\n  end\nend', ctx:'Ruby tudo é objeto. Use snake_case para métodos/variáveis, PascalCase para classes.'},
+  ]},
+  {id:'rails-mvc', e:'🏗️', n:'Arquitetura MVC', g:'🚂 Ruby on Rails', tags:['MVC','model','view','controller','arquitetura'], desc:'Model-View-Controller: separação entre dados, apresentação e lógica de requisição.', subs:[
+    {t:'Conceito MVC no Rails', exp:'Model (dados), View (UI), Controller (requisições).', code:'# Model   → app/models/usuario.rb\n#   Dados, validações, regras de negócio\n#   Ex: Usuario.all, usuario.save\n\n# View    → app/views/usuarios/index.html.erb\n#   Apresentação HTML\n#   Ex: <%= @usuario.nome %>\n\n# Controller → app/controllers/usuarios_controller.rb\n#   Recebe requisições, coordena model e view\n#   Ex: def index; @usuarios = Usuario.all; end', ctx:'O Rails segue "convention over configuration": nomes seguem padrões automáticos.'},
+  ]},
+  {id:'rails-routes', e:'🛣️', n:'Rotas no Rails', g:'🚂 Ruby on Rails', tags:['routes','resources','REST','rake routes'], desc:'Definem mapeamento de URLs para controllers. Rails usa convenção RESTful.', subs:[
+    {t:'Definição de rotas', exp:'config/routes.rb com resources.', code:'# config/routes.rb\nRails.application.routes.draw do\n  root "home#index"\n\n  # Rotas RESTful automáticas:\n  # GET    /produtos       → produtos#index\n  # GET    /produtos/:id   → produtos#show\n  # POST   /produtos       → produtos#create\n  # PATCH  /produtos/:id   → produtos#update\n  # DELETE /produtos/:id   → produtos#destroy\n  resources :produtos\n\n  # Rota customizada\n  get "dashboard", to: "admin#dashboard"\nend', ctx:'`resources` gera 7 rotas CRUD automaticamente (RESTful).'},
+  ]},
+  {id:'rails-controllers', e:'🎮', n:'Controllers', g:'🚂 Ruby on Rails', tags:['controller','params','before_action','render','redirect'], desc:'Recebem requisições, manipulam dados e respondem com HTML ou JSON.', subs:[
+    {t:'Controller RESTful', exp:'CRUD completo com before_action.', code:'class ProdutosController < ApplicationController\n  before_action :set_produto, only: [:show, :update, :destroy]\n\n  def index\n    @produtos = Produto.all\n  end\n\n  def show\n    # @produto já definido pelo before_action\n  end\n\n  def create\n    @produto = Produto.new(produto_params)\n    if @produto.save\n      render json: @produto, status: :created\n    else\n      render json: @produto.errors, status: :unprocessable_entity\n    end\n  end\n\n  private\n\n  def set_produto\n    @produto = Produto.find(params[:id])\n  end\n\n  def produto_params\n    params.require(:produto).permit(:nome, :preco, :descricao)\n  end\nend', ctx:'Strong Parameters previnem mass assignment inseguro. before_action evita repetição.'},
+  ]},
+  {id:'rails-models', e:'🗃️', n:'Models e Validações', g:'🚂 Ruby on Rails', tags:['model','ActiveRecord','validações','relacionamentos','migration'], desc:'Models representam dados. Usam Active Record para ORM e validações.', subs:[
+    {t:'Model com validações', exp:'Validações e relacionamentos.', code:'class Produto < ApplicationRecord\n  validates :nome, presence: true, length: { maximum: 100 }\n  validates :preco, numericality: { greater_than_or_equal_to: 0 }\n  validates :sku, uniqueness: true\n\n  belongs_to :categoria\n  has_many :avaliacoes, dependent: :destroy\n\n  def descricao_resumida\n    @nome + \" -- R$ \" + format(\"%.2f\", @preco)\n  end\nend\n\n# Migration\nclass CreateProdutos < ActiveRecord::Migration[7.1]\n  def change\n    create_table :produtos do |t|\n      t.string :nome, null: false\n      t.decimal :preco, precision: 10, scale: 2\n      t.references :categoria, foreign_key: true\n      t.timestamps\n    end\n  end\nend', ctx:'`rails generate model Produto nome:string preco:decimal` gera model + migration.'},
+  ]},
+  {id:'rails-database', e:'🗄️', n:'Banco de Dados e Migrations', g:'🚂 Ruby on Rails', tags:['database','migration','schema','seed','ActiveRecord'], desc:'Rails usa migrations para versionar o banco. ActiveRecord abstrai queries SQL.', subs:[
+    {t:'Operações de banco', exp:'CRUD com Active Record.', code:'# Queries\nProduto.all                          # todos\nProduto.where(preco: ..100)          # filtro\nProduto.order(nome: :asc).limit(10)  # ordenado\nProduto.find(1)                      # por ID\nProduto.find_by(nome: "Livro")       # primeiro que encontra\n\n# Criar/Atualizar/Deletar\np = Produto.create(nome: "Livro", preco: 29.90)\np.update(preco: 19.90)\np.destroy\n\n# Relacionamentos\ncategoria.produtos                   # produtos da categoria\n\n# Rake commands\n# rails db:migrate    # executa migrations\n# rails db:seed       # popula dados iniciais\n# rails db:rollback   # desfaz última migration', ctx:'Active Record usa convenções: table name plural (produtos), model singular (Produto).'},
+  ]},
+  {id:'rails-api', e:'🌐', n:'Criando APIs com Rails', g:'🚂 Ruby on Rails', tags:['API','JSON','render json','serializer','cors'], desc:'Rails pode servir como backend API-only, retornando JSON para frontends.', subs:[
+    {t:'API com Rails', exp:'Controller que retorna JSON + CORS.', code:'# app/controllers/api/v1/produtos_controller.rb\nmodule Api::V1\n  class ProdutosController < ApplicationController\n    def index\n        @produtos = Produto.all\n        render json: @produtos\n      end\n\n      def create\n        @produto = Produto.new(produto_params)\n        if @produto.save\n          render json: @produto, status: :created\n      else\n          render json: @produto.errors, status: :unprocessable_entity\n        end\n      end\n\n      private\n\n      def produto_params\n        params.require(:produto).permit(:nome, :preco)\n      end\n    end\n  end\n\n  # config/routes.rb\n  namespace :api do\n    namespace :v1 do\n      resources :produtos\n    end\n  end\n\n  # Para API-only: rails new projeto --api\n  # Configurar CORS: gem "rack-cors"', ctx:'`rails new --api` remove views e middleware desnecessários para APIs.'},
+  ]},
+  {id:'rails-auth', e:'🔐', n:'Autenticação no Rails', g:'🚂 Ruby on Rails', tags:['authentication','has_secure_password','bcrypt','session','JWT'], desc:'Autenticar usuarios com has_secure_password, sessao e tokens JWT.', subs:[
+    {t:'Autenticacao com has_secure_password', exp:'Bcrypt + has_secure_password.', code:'# Gemfile\ngem "bcrypt", "~> 3.1.7"\n\n# app/models/usuario.rb\nclass Usuario < ApplicationRecord\n  has_secure_password\n  validates :email, uniqueness: true, presence: true\n\n  def gerar_token\n    self.token = SecureRandom.urlsafe_base64\n    save!\n    token\n  end\nend\n\n# app/controllers/sessions_controller.rb\nclass SessionsController < ApplicationController\n  def create\n    usuario = Usuario.find_by(email: params[:email])\n    if usuario&.authenticate(params[:password])\n      session[:usuario_id] = usuario.id\n      render json: { message: "Login OK" }\n    else\n      render json: { error: "Inválido" }, status: :unauthorized\n    end\n  end\n\n  def destroy\n    session[:usuario_id] = nil\n    render json: { message: "Logout OK" }\n  end\nend', ctx:'has_secure_password exige campo password_digest. Para APIs, use JWT (gem "jwt").'},
   ]},
 ];
 
